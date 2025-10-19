@@ -1,0 +1,11 @@
+@font-face {
+  font-family: montserratBold;
+  src: url("../src/assets/fonts/Montserrat-Bold.ttf");
+}
+@import 'tailwindcss';
+
+
+@theme {
+  --font-montserratB: montserratBold, "sans-serif";
+  --shadow-glowblue: 0 0 30px 0 rgba(0, 100, 255);
+}

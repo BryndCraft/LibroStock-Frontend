@@ -2,10 +2,16 @@
   font-family: montserratBold;
   src: url("../src/assets/fonts/Montserrat-Bold.ttf");
 }
-@import 'tailwindcss';
 
+@font-face {
+  font-family: poppins;
+  src: url("../src/assets/fonts/poppins.regular.ttf");
+}
+@import "tailwindcss";
 
 @theme {
+  --font-poppins: Poppins, "sans-serif";
   --font-montserratB: montserratBold, "sans-serif";
   --shadow-glowblue: 0 0 30px 0 rgba(0, 100, 255);
+   --shadow-glowgray: 0 0 30px 0 rgba(30 ,30 , 30, 0.3);
 }

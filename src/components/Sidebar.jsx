@@ -7,11 +7,11 @@ import InventoryIcon from "@mui/icons-material/Inventory";
 import LogoutIcon from "@mui/icons-material/Logout";
 import SchoolIcon from "@mui/icons-material/School";
 import PeopleIcon from "@mui/icons-material/People";
-
+import Logout from "../components/Logout";
 
 export default function Sidebar() {
   const location = useLocation(); 
-
+  const handleLogout = Logout();
   const links = [
     { name: "Dashboard", path: "/", icon: <DashboardIcon className="mr-3 text-lg" /> },
     { name: "Facturacion", path: "/facturacion", icon: <ReceiptLongIcon className="mr-3 text-lg" /> },
@@ -35,7 +35,7 @@ export default function Sidebar() {
           </div>
           <div className="ml-3">
             <h3 className="text-white font-semibold">Administrador</h3>
-            <p className="text-blue-200 text-xs">Colegio San Miguel</p>
+            <p className="text-blue-200 text-xs">Colegio Liceo Franciscano</p>
           </div>
         </div>
       </div>
@@ -62,7 +62,9 @@ export default function Sidebar() {
       </div>
 
       <div className="p-5 border-t border-blue-700">
-        <button className="flex items-center justify-center w-full bg-red-600 hover:cursor-pointer transform-all delay-100 transition ease-in-out hover:scale-110 hover:bg-red-800  text-white py-3 px-4 rounded-xl  border border-red-500/30 hover:border-red-500/50">
+        <button 
+        onClick={handleLogout}
+        className="flex items-center justify-center w-full bg-red-600 hover:cursor-pointer transform-all delay-100 transition ease-in-out hover:scale-110 hover:bg-red-800  text-white py-3 px-4 rounded-xl  border border-red-500/30 hover:border-red-500/50" >
           <LogoutIcon className="mr-2" />
           <span className="font-medium">Cerrar Sesión</span>
         </button>

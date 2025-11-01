@@ -5,6 +5,7 @@ import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import Sidebar from "../../components/Sidebar";
 import Card from "../../components/Card";
+
 export default function DashBoard() {
   return (
     <div className="h-screen w-full flex bg-gray-50">

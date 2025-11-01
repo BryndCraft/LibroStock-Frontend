@@ -4,16 +4,39 @@ import Login from "./pages/auth/Login";
 import DashBoard from "./pages/home/DashBoard";
 import Facturacion from "./pages/home/Facturacion";
 import Inventario from "./pages/home/Inventario";
+import { PublicRoute } from "./components/Routes/PublicRoute";
+import { PrivateRoute } from "./components/Routes/PrivateRoute";  
+import { Public } from "@mui/icons-material";
 
 function App() {
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<DashBoard/>} />
-          <Route path="/login" element={<Login/>} />
-          <Route path="/facturacion" element={<Facturacion/>} />
-          <Route path="/inventario" element={<Inventario/>} />
+          <Route path="/" element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          } />
+          <Route path="/dashboard" element=
+          {<PrivateRoute>
+            <DashBoard/>
+          </PrivateRoute>} />
+          <Route path="/login" element=
+          {<PublicRoute>
+            <Login/>
+          </PublicRoute>} />
+          <Route path="/facturacion" element={
+            <PrivateRoute>
+              <Facturacion/>
+            </PrivateRoute>
+            } />
+          <Route path="/inventario" element=
+          {
+            <PrivateRoute>
+              <Inventario/>
+            </PrivateRoute>
+          } />
         </Routes>
       </BrowserRouter>
     </>

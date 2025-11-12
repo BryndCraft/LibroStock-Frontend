@@ -13,8 +13,14 @@ import { useUser } from "../context/UserContext";
 export default function Sidebar() {
   const location = useLocation(); 
   const handleLogout = useLogout();
-  const { user } = useUser();
-  
+  const {user} = useUser();
+  let name = user?.nombre || "usuario";
+  name = name[0].toUpperCase() + name.slice(1);
+  if (user?.apellido) {
+  const apellido = user.apellido[0].toUpperCase() + user.apellido.slice(1);
+  name = name + ' ' + apellido;
+  }
+  console.log(name);
   const links = [
     { name: "Dashboard", path: "/", icon: <DashboardIcon className="mr-3 text-lg" /> },
     { name: "Facturacion", path: "/facturacion", icon: <ReceiptLongIcon className="mr-3 text-lg" /> },
@@ -37,7 +43,7 @@ export default function Sidebar() {
             <PeopleIcon/>
           </div>
           <div className="ml-3">
-            <h3 className="text-white font-semibold">{user?.nombre ? user?.nombre : 'Usuario'}</h3>
+            <h3 className="text-white font-semibold">{name}</h3>
             <p className="text-blue-200 text-xs">Colegio Liceo Franciscano</p>
           </div>
         </div>

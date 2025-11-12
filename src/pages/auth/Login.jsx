@@ -3,31 +3,40 @@ import LibrarySVG from "../../assets/images/alumnas.svg";
 import Fondo from "../../assets/images/Fondo.svg";
 import { useState } from "react";
 import Swal from 'sweetalert2';
-import { loginAdmin } from "../../apis/auth.api";
+import { login } from "../../apis/auth.api";
 import { useNavigate } from 'react-router-dom';
+import { useUser } from "../../context/UserContext";
 
 export default function Login() {
+  const { loginUser } = useUser();
   const navi = useNavigate();
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!username || !password){
       Swal.fire('Campos incompletos.', 'Debes llenar todos los campos', 'warning');
       return;
     }
+    setLoading(true);
     try{
-      const response = await loginAdmin({username, password});
+      const response = await login({username, password});
+
       if (response.status === 200 ){
-        localStorage.setItem('accessToken', 'fake-token');
-        Swal.fire('Bienvenido', 'Inicio de Sesion exitoso', 'Success.');
+        loginUser(response.data.user, response.data.token);
+        await Swal.fire('Bienvenido', 'Inicio de Sesion exitoso', 'success');
         navi('/dashboard');
+        
       }
+
     }catch(error){
       console.log(error);
-      Swal.fire("Error", "Credenciales incorrectas o error de servidor", "error");  
+      Swal.fire("Error", "Credenciales incorrectas.", "error");  
+    }finally{
+      setLoading(false);
     }
   }
 
@@ -89,9 +98,9 @@ export default function Login() {
               </div>
 
               <div className="w-full flex justify-center items-center">
-                <button className="rounded-4xl bg-white flex justify-center text-gray-700 w-[50%] h-10 items-center hover:cursor-pointer hover:bg-amber-400 hover:text-white select-none" 
+                <button disabled={loading} className="rounded-4xl bg-white flex justify-center text-gray-700 w-[50%] h-10 items-center hover:cursor-pointer hover:bg-amber-400 hover:text-white select-none" 
                 type="submit">
-                  <span className="select-none">Ingresar</span>
+                  <span className="select-none">{loading ? 'Entrando' : 'Ingrsar'}</span>
                 </button>
               </div>
             </form>

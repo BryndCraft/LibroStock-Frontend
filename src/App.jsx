@@ -7,7 +7,7 @@ import Inventario from "./pages/home/Inventario";
 import { PublicRoute } from "./components/Routes/PublicRoute";
 import { PrivateRoute } from "./components/Routes/PrivateRoute";  
 import { Public } from "@mui/icons-material";
-
+import Perfil from "./pages/home/Perfil";
 function App() {
   return (
     <>
@@ -37,6 +37,10 @@ function App() {
               <Inventario/>
             </PrivateRoute>
           } />
+          <Route path="/perfil" element=
+          {<PrivateRoute>
+            <Perfil/>
+          </PrivateRoute>} />
         </Routes>
       </BrowserRouter>
     </>

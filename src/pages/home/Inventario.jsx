@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../components/utils/Sidebar";
 import { CategoriaForm } from "../../components/Forms/CategoriaForms";
 import { ProductoForm } from "../../components/Forms/ProductoForms";
 import { KeyboardArrowDown, Check } from "@mui/icons-material";
@@ -36,8 +36,6 @@ export default function Inventario() {
   const [filtroBusqueda, setFiltroBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("");
   const [filtroStock, setFiltroStock] = useState("");
-  const [mostrarFiltros, setMostrarFiltros] = useState("");
-
 
   useEffect(() => {
     cargarDatosIniciales();

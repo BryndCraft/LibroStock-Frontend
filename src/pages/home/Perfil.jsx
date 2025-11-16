@@ -20,7 +20,7 @@ import CustomSelect from "../../components/utils/CustomSelect";
 import Swal from "sweetalert2";
 import { createUserApi, listUserApi, updateUserApi, deleteUserApi, uploadFoto, getMediaUrl } from "../../apis/auth.api";
 import { useUser } from "../../context/UserContext";
-import Sidebar from '../../components/Sidebar';
+import Sidebar from '../../components/utils/Sidebar';
 
 export default function Perfil() {
 
@@ -111,18 +111,6 @@ export default function Perfil() {
     }
   };
 
-
-
-  const handleChangeRol = (event) => {
-    const { value } = event.target;
-    setRolSeleccionado(typeof value === "string" ? value.split(",") : value);
-
-    setNuevoUsuario(prev => ({
-      ...prev,
-      rol: value[value.length - 1]
-
-    }));
-  };
   const cerrarModal = () => {
     setMostrarFormUsuario(false);
     setNuevoUsuario({

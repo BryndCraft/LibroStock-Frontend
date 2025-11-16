@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { Save, Cancel, Inventory2, LocalOffer, Description, Category, Archive, Numbers, Search } from "@mui/icons-material";
 import { searchCategorias } from "../../apis/categorias.api";
-
+import CustomSelect from "../utils/CustomSelect";
 export function ProductoForm({ producto, onSave, onCancel }) {
-const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState({
     nombre: producto?.nombre || "",
     descripcion: producto?.descripcion || "",
     precio: producto?.precio || "",
@@ -30,22 +30,22 @@ const [formData, setFormData] = useState({
   };
   function generarCodigoBarrasEAN13() {
 
-  const base = Array.from({ length: 12 }, () => Math.floor(Math.random() * 10));
+    const base = Array.from({ length: 12 }, () => Math.floor(Math.random() * 10));
 
-  const suma = base.reduce((acc, num, i) => acc + num * (i % 2 === 0 ? 1 : 3), 0);
-  const digitoVerificador = (10 - (suma % 10)) % 10;
+    const suma = base.reduce((acc, num, i) => acc + num * (i % 2 === 0 ? 1 : 3), 0);
+    const digitoVerificador = (10 - (suma % 10)) % 10;
 
-  return [...base, digitoVerificador].join('');
-}
+    return [...base, digitoVerificador].join('');
+  }
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     // Validaciones
     if (!formData.nombre.trim()) {
       alert('El nombre del producto es requerido');
       return;
     }
-    
+
     if (!formData.precio || parseFloat(formData.precio) <= 0) {
       alert('El precio debe ser mayor a 0');
       return;
@@ -56,8 +56,8 @@ const [formData, setFormData] = useState({
       ...formData,
       precio: parseFloat(formData.precio),
       stock: parseInt(formData.stock) || 0,
-      categoria_id: formData.categoria_id || null, 
-      codigo_barras:  generarCodigoBarrasEAN13(), 
+      categoria_id: formData.categoria_id || null,
+      codigo_barras: generarCodigoBarrasEAN13(),
     };
 
     onSave(datosEnviar);
@@ -152,57 +152,73 @@ const [formData, setFormData] = useState({
             </div>
 
             <div className="md:col-span-2">
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Categoría
-  </label>
-  
-  {/* Barra de búsqueda */}
-  <div className="mb-3">
-    <div className="relative">
-      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-      <input
-        type="text"
-        placeholder="Buscar categoría..."
-        value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
-        className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      />
-      {searchText && (
-        <button
-          type="button"
-          onClick={() => setSearchText('')}
-          className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-        >
-          ✕
-        </button>
-      )}
-    </div>
-  </div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Categoría
+              </label>
 
-  {/* Select de categorías */}
-  <div className="relative">
-    <Category className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-    <select
-      name="categoria_id"
-      value={formData.categoria_id}
-      onChange={handleChange}
-      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-    >
-      <option value="">Seleccionar categoría</option>
-      {categorias
-        .filter(cat =>
-          cat?.nombre?.toLowerCase().includes(searchText.toLowerCase()) ||
-          searchText === ''
-        )
-        .map(cat => (
-          <option key={cat.id} value={cat.id}>
-            {cat.nombre}
-          </option>
-        ))
-      }
-    </select>
-  </div>
-</div>
+              {/* Barra de búsqueda */}
+              <div className="mb-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Buscar categoría..."
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  {searchText && (
+                    <button
+                      type="button"
+                      onClick={() => setSearchText('')}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Select de categorías */}
+              <div className="relative">
+
+                <CustomSelect
+                  label="Categoría"
+                  options={[
+                    { value: '', label: 'Seleccionar categoría' },
+                    ...categorias
+                      .filter(cat =>
+                        cat?.nombre?.toLowerCase().includes(searchText.toLowerCase()) ||
+                        searchText === ''
+                      )
+                      .map(cat => ({
+                        value: cat.id,
+                        label: cat.nombre
+                      }))
+                  ]}
+                  value={formData.categoria_id || ''}
+                  onChange={(selectedValue) => {
+                    handleChange({
+                      target: {
+                        name: 'categoria_id',
+                        value: selectedValue
+                      }
+                    });
+                  }}
+                  width="100%"
+                  margin={0}
+                  required={true}
+                  startAdornment={
+                    <Category
+                      sx={{
+                        color: 'text.secondary',
+
+                      }}
+                    />
+                  }
+                />
+              </div>
+            </div>
             {/* Descripción */}
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">

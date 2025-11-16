@@ -1,16 +1,16 @@
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
-import Logo from "../../src/assets/images/LibroStock-Logo.png";
+import Logo from "../../assets/images/LibroStock-Logo.png";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import LogoutIcon from "@mui/icons-material/Logout";
 import SchoolIcon from "@mui/icons-material/School";
 import PeopleIcon from "@mui/icons-material/People";
-import { useLogout } from "../pages/auth/Logout";
-import { useUser } from "../context/UserContext";
+import { useLogout } from "../../pages/auth/Logout";
+import { useUser } from "../../context/UserContext";
 import { useState } from "react";
-import { getMediaUrl } from "../apis/auth.api";
+import { getMediaUrl } from "../../apis/auth.api";
 import { useEffect } from "react";
 import { Person } from "@mui/icons-material";
 export default function Sidebar() {

@@ -45,14 +45,14 @@ export default function Login() {
 
   return (
     <div className="relative h-screen w-full">
-      {loading && (
-        <div className="fixed inset-0 flex items-center justify-center z-50">
+        {loading && (
+          <div className="fixed inset-0 flex items-center justify-center z-50">
 
-          <div className="absolute inset-0 backdrop-blur-sm"></div>
+            <div className="absolute inset-0 backdrop-blur-sm"></div>
 
-          <CircularProgress size={60} color="primary" />
-        </div>
-      )}
+            <CircularProgress size={60} color="primary" />
+          </div>
+        )}
       <img
         src={Fondo}
         alt="Fondo"

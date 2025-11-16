@@ -1,5 +1,5 @@
  import { useState, useEffect, useRef } from "react";
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../components/utils/Sidebar";
 import {
   Search,
   Add,

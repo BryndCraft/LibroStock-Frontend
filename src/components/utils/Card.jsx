@@ -1,4 +1,11 @@
-export default function Card({ color = "green", cantidad = 4, texto = "Total de productos", icon = null }) {
+export default function Card(
+  { color = "green", 
+    cantidad = 4, 
+    texto = "Total de productos", 
+    icon = null, 
+    onClick = null  
+  }
+) {
   const gradients = {
     green: "from-green-500 to-green-600",
     blue: "from-blue-500 to-blue-600",
@@ -11,6 +18,7 @@ export default function Card({ color = "green", cantidad = 4, texto = "Total de 
   return (
     <div
       className={`rounded-2xl bg-gradient-to-br ${gradient} p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1`}
+      onClick={onClick}
     >
       <div className="flex justify-between items-start">
         <div>

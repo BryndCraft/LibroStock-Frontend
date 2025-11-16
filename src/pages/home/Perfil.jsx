@@ -456,9 +456,9 @@ const guardarUsuarioEditado = async () => {
                         alt="Foto de perfil"
                         className="w-full h-full rounded-full object-cover"
                       />
-                    ) : perfil.photo_perfil ? (
+                    ) : user.photo_perfil ? (
                       <img
-                        src={getMediaUrl(perfil.photo_perfil)}
+                        src={getMediaUrl(user.photo_perfil)}
                         alt="Foto de perfil"
                         className="w-full h-full rounded-full object-cover"
                       />

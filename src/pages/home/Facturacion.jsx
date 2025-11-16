@@ -192,9 +192,7 @@ export default function Facturacion() {
     }
 
     // Aquí iría la lógica para guardar la venta en la base de datos
-    alert(`Venta realizada exitosamente!\nTotal: C$${total}\nCambio: C$${cambio}`);
-
-    // Limpiar después de la venta
+    Swal.fire("Venta realizada exitosamente!", `Total: C$${total}\nCambio: C$${cambio}`, "sucess");
     limpiarCarrito();
   };
 

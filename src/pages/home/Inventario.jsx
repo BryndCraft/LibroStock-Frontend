@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Sidebar from "../../components/Sidebar";
 import { CategoriaForm } from "../../components/Forms/CategoriaForms";
 import { ProductoForm } from "../../components/Forms/ProductoForms";
+import { KeyboardArrowDown, Check } from "@mui/icons-material";
 import { searchCategorias, createCategoria, updateCategoria, deleteCategoria } from "../../apis/categorias.api";
 import { searchProductos, createProducto, updateProducto, deleteProducto } from "../../apis/productos.api";
 import {
@@ -17,6 +18,9 @@ import {
   Clear,
   FilterList,
 } from "@mui/icons-material";
+import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react'
+import { ChevronUpDownIcon, CheckIcon } from '@heroicons/react/24/outline'
+import { Menu, MenuItem, Button } from "@mui/material";
 import Swal from "sweetalert2";
 
 export default function Inventario() {
@@ -30,6 +34,10 @@ export default function Inventario() {
   const [productoEditando, setProductoEditando] = useState(null);
   const [categoriaEditando, setCategoriaEditando] = useState(null);
   const [filtroBusqueda, setFiltroBusqueda] = useState("");
+  const [filtroCategoria, setFiltroCategoria] = useState("");
+  const [filtroStock, setFiltroStock] = useState("");
+  const [mostrarFiltros, setMostrarFiltros] = useState("");
+
 
   useEffect(() => {
     cargarDatosIniciales();
@@ -53,6 +61,7 @@ export default function Inventario() {
     try {
       const response = await searchCategorias("", 1);
       setCategorias(response.data?.Categorias?.results || []);
+      console.log(response.data);
     } catch (error) {
       console.log('Error cargando categorías:', error);
     }
@@ -168,11 +177,35 @@ export default function Inventario() {
     return 'bg-emerald-100 text-emerald-800 border-emerald-200';
   };
 
-  const productosFiltrados = productos.filter(producto =>
-    producto.nombre?.toLowerCase().includes(filtroBusqueda.toLowerCase()) ||
-    producto.codigo_barras?.toLowerCase().includes(filtroBusqueda.toLowerCase()) ||
-    obtenerNombreCategoria(producto.categoria_id)?.toLowerCase().includes(filtroBusqueda.toLowerCase())
-  );
+  const productosFiltrados = productos.filter(producto => {
+    const coincideBusqueda =
+      producto.nombre?.toLowerCase().includes(filtroBusqueda.toLowerCase()) ||
+      producto.codigo_barras?.toLowerCase().includes(filtroBusqueda.toLowerCase()) ||
+      obtenerNombreCategoria(producto.categoria_id)?.toLowerCase().includes(filtroBusqueda.toLowerCase());
+
+    const coincideCategoria =
+      !filtroCategoria || producto.categoria_id === parseInt(filtroCategoria);
+
+    const coincideStock = (() => {
+      switch (filtroStock) {
+        case 'con-stock':
+          return producto.stock > 0;
+        case 'sin-stock':
+          return producto.stock === 0;
+        case 'stock-bajo':
+          return producto.stock > 0 && producto.stock < 10;
+        default:
+          return true;
+      }
+    })();
+
+    return coincideBusqueda && coincideCategoria && coincideStock;
+  });
+  const limpiarFiltros = () => {
+    setFiltroBusqueda("");
+    setFiltroCategoria("");
+    setFiltroStock("");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/20 to-indigo-50/20">
@@ -181,7 +214,7 @@ export default function Inventario() {
 
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <header className="bg-white/70 backdrop-blur-xl border-b border-slate-200/60 px-8 py-6">
+          <header className="bg-white/70 backdrop-blur-xl border-b border-slate-200/60 px-8 py-5 pb-2">
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
               <div>
                 <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-800 to-blue-700 bg-clip-text text-transparent">
@@ -237,11 +270,11 @@ export default function Inventario() {
 
           {/* Filtros - solo mostrar para productos */}
           {vistaActual === 'productos' && (
-            <div className="bg-white/50 backdrop-blur-lg border-b border-slate-200/40 p-6">
+            <div className="bg-white/50 backdrop-blur-lg border-b border-slate-200/40 p-3  pt-3 pb-[0.01rem]">
               <div className="max-w-7xl mx-auto">
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 ">
                   {/* Barra de búsqueda - ocupa 5 columnas */}
-                  <div className="md:col-span-4 relative">
+                  <div className="md:col-span-4 relative ">
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400" />
                     <input
                       type="text"
@@ -252,24 +285,18 @@ export default function Inventario() {
                     />
                   </div>
 
-                  {/* Select de categorías - ocupa 2 columnas */}
                   <div className="md:col-span-2">
-                    <select className="w-full px-4 py-3 border border-slate-200/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-300 bg-white/70 backdrop-blur-sm transition-all duration-200">
-                      <option value="">Todas las categorías</option>
-                      {categorias.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.nombre}</option>
-                      ))}
-                    </select>
+                    <SelectCategoria
+                      filtroCategoria={filtroCategoria}
+                      setFiltroCategoria={setFiltroCategoria}
+                      categorias={categorias} />
                   </div>
-
-                  {/* Select de stock - ocupa 2 columnas */}
                   <div className="md:col-span-2">
-                    <select className="w-full px-4 py-3 border border-slate-200/80 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-300 bg-white/70 backdrop-blur-sm transition-all duration-200">
-                      <option value="">Estado de stock</option>
-                      <option value="con-stock">Con stock</option>
-                      <option value="sin-stock">Sin stock</option>
-                      <option value="stock-bajo">Stock bajo</option>
-                    </select>
+
+                    <SelectStock
+                      filtroStock={filtroStock}
+                      setFiltroStock={setFiltroStock}
+                    />
                   </div>
 
                   {/* Botones de vista - ocupa 2 columnas */}
@@ -278,8 +305,8 @@ export default function Inventario() {
                       <button
                         onClick={() => setVista('tabla')}
                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border transition-all ${vista === 'tabla'
-                            ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-blue-500 shadow-lg'
-                            : 'bg-white/70 text-slate-700 border-slate-200/80 hover:bg-white hover:border-slate-300 backdrop-blur-sm'
+                          ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-blue-500 shadow-lg'
+                          : 'bg-white/70 text-slate-700 border-slate-200/80 hover:bg-white hover:border-slate-300 backdrop-blur-sm'
                           }`}
                       >
                         <TableChart className="text-lg" />
@@ -288,15 +315,15 @@ export default function Inventario() {
                       <button
                         onClick={() => setVista('cards')}
                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border transition-all ${vista === 'cards'
-                            ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-blue-500 shadow-lg'
-                            : 'bg-white/70 text-slate-700 border-slate-200/80 hover:bg-white hover:border-slate-300 backdrop-blur-sm'
+                          ? 'bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-blue-500 shadow-lg'
+                          : 'bg-white/70 text-slate-700 border-slate-200/80 hover:bg-white hover:border-slate-300 backdrop-blur-sm'
                           }`}
                       >
                         <Dashboard className="text-lg" />
                         Cards
                       </button>
                       <button
-                        onClick={() => setFiltroBusqueda("")}
+                        onClick={limpiarFiltros}
                         className="flex-1 px-4 py-3 bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-2xl hover:from-slate-700 hover:to-slate-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 font-medium border border-slate-500/20"
                       >
                         <Clear className="text-lg" />
@@ -304,12 +331,41 @@ export default function Inventario() {
                       </button>
                     </div>
                   </div>
+                  {/* Después de los filtros, antes del cierre del div de filtros */}
+                  {(filtroBusqueda || filtroCategoria || filtroStock) && (
+                    <div className="md:col-span-12 flex flex-wrap gap-2 mt-2">
+                      {filtroBusqueda && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                          Búsqueda: "{filtroBusqueda}"
+                          <button onClick={() => setFiltroBusqueda("")} className="text-blue-600 hover:text-blue-800">
+                            ×
+                          </button>
+                        </span>
+                      )}
+                      {filtroCategoria && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                          Categoría: {categorias.find(c => c.id.toString() === filtroCategoria)?.nombre}
+                          <button onClick={() => setFiltroCategoria("")} className="text-green-600 hover:text-green-800">
+                            ×
+                          </button>
+                        </span>
+                      )}
+                      {filtroStock && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">
+                          Stock: {filtroStock === 'con-stock' ? 'Con stock' : filtroStock === 'sin-stock' ? 'Sin stock' : 'Stock bajo'}
+                          <button onClick={() => setFiltroStock("")} className="text-orange-600 hover:text-orange-800">
+                            ×
+                          </button>
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           )}
-          {/* Contenido principal */}
-          <div className="flex-1 overflow-auto p-6">
+          {/* el pt que esta ahi controla el aumento vertical entre la barra de busqueda y la tabla */}
+          <div className="flex-1 overflow-auto p-6 pt-2">
             {cargando ? (
               <div className="flex justify-center items-center h-64">
                 <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-500 border-t-transparent"></div>
@@ -317,7 +373,7 @@ export default function Inventario() {
             ) : vistaActual === 'productos' ? (
               <div className="max-w-7xl mx-auto">
                 <div className="bg-white/60 backdrop-blur-lg rounded-3xl shadow-sm border border-slate-200/40 overflow-hidden">
-                  <div className="p-8 border-b border-slate-200/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                  <div className="p-8 pt-[1rem] pb-[0.6rem] border-b border-slate-200/40 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                     <div>
                       <h2 className="text-2xl font-bold text-slate-800">
                         Productos <span className="text-blue-600">({productosFiltrados.length})</span>
@@ -334,7 +390,7 @@ export default function Inventario() {
                     </div>
                   </div>
 
-                  <div className="p-8">
+                  <div className="px-8 pb-6">
                     {vista === 'tabla' ? (
                       <VistaTabla
                         productos={productosFiltrados}
@@ -409,6 +465,164 @@ export default function Inventario() {
   );
 }
 
+
+
+function SelectStock({ filtroStock, setFiltroStock }) {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const opcionesStock = [
+    { value: '', label: 'Estado de stock' },
+    { value: 'con-stock', label: 'Con stock' },
+    { value: 'sin-stock', label: 'Sin stock' },
+    { value: 'stock-bajo', label: 'Stock bajo' },
+  ];
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSelect = (value) => {
+    setFiltroStock(value);
+    handleClose();
+  };
+
+  return (
+    <div className="md:col-span-2">
+      <Button
+        className="w-full px-4 py-3 border border-slate-200/80 rounded-2xl bg-white/70 backdrop-blur-sm text-slate-700 normal-case font-normal justify-between hover:bg-white/90 transition-all duration-200"
+        onClick={handleClick}
+        endIcon={<KeyboardArrowDown />}
+        sx={{
+          color: '#374151', // text-gray-700
+          textTransform: 'none',
+          fontSize: '1rem',
+          fontWeight: 'normal',
+          border: '1px solid rgba(226, 232, 240, 0.8)',
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            borderColor: 'rgba(203, 213, 225, 0.8)'
+          }
+        }}
+      >
+        {opcionesStock.find(op => op.value === filtroStock)?.label || 'Estado de stock'}
+      </Button>
+      
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        className="mt-2"
+        PaperProps={{
+          className: "bg-white/95 backdrop-blur-lg border border-slate-200/80 rounded-2xl shadow-lg shadow-slate-200/20 py-2"
+        }}
+      >
+        {opcionesStock.map((opcion) => (
+          <MenuItem
+            key={opcion.value}
+            onClick={() => handleSelect(opcion.value)}
+            className={`py-3 px-4 ${filtroStock === opcion.value ? 'bg-blue-100/80 font-medium' : ''}`}
+            sx={{
+              textTransform: 'none',
+              fontSize: '1rem',
+              fontWeight: filtroStock === opcion.value ? '600' : 'normal',
+            }}
+          >
+            <span className="flex-1">{opcion.label}</span>
+            {filtroStock === opcion.value && <Check className="w-5 h-5 text-blue-600 ml-2" />}
+          </MenuItem>
+        ))}
+      </Menu>
+    </div>
+  );
+}
+
+function SelectCategoria({ filtroCategoria, setFiltroCategoria, categorias }) {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSelect = (value) => {
+    setFiltroCategoria(value);
+    handleClose();
+  };
+
+  return (
+    <div className="md:col-span-2">
+      <Button
+        className="w-full px-4 py-3 border border-slate-200/80 rounded-4xl bg-white/70 backdrop-blur-sm text-slate-700 normal-case font-normal justify-between hover:bg-white/90 transition-all duration-200"
+        onClick={handleClick}
+        endIcon={<KeyboardArrowDown />}
+        sx={{
+          color: '#374151', // text-gray-700
+          textTransform: 'none',
+          fontSize: '1rem',
+          fontWeight: 'normal',
+          border: '1px solid rgba(226, 232, 240, 0.8)',
+          '&:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            borderColor: 'rgba(203, 213, 225, 0.8)'
+          }
+        }}
+      >
+        {filtroCategoria === ''
+          ? 'Todas las categorías'
+          : categorias.find(cat => cat.id.toString() === filtroCategoria.toString())?.nombre || 'Todas las categorías'
+        }
+      </Button>
+      
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        className="mt-2"
+        PaperProps={{
+          className: "bg-white/95 backdrop-blur-lg border border-slate-200/80 rounded-2xl shadow-lg shadow-slate-200/20 py-2"
+        }}
+      >
+        <MenuItem
+          onClick={() => handleSelect('')}
+          className={`py-3 px-4 ${filtroCategoria === '' ? 'bg-blue-100/80 font-medium' : ''}`}
+          sx={{
+            textTransform: 'none',
+            fontSize: '1rem',
+            fontWeight: filtroCategoria === '' ? '600' : 'normal',
+          }}
+        >
+          <span className="flex-1">Todas las categorías</span>
+          {filtroCategoria === '' && <Check className="w-5 h-5 text-blue-600 ml-2" />}
+        </MenuItem>
+        
+        {categorias.map((cat) => (
+          <MenuItem
+            key={cat.id}
+            onClick={() => handleSelect(cat.id)}
+            className={`py-3 px-4 ${filtroCategoria === cat.id ? 'bg-blue-100/80 font-medium' : ''}`}
+            sx={{
+              textTransform: 'none',
+              fontSize: '1rem',
+              fontWeight: filtroCategoria === cat.id ? '600' : 'normal',
+            }}
+          >
+            <span className="flex-1">{cat.nombre}</span>
+            {filtroCategoria === cat.id && <Check className="w-5 h-5 text-blue-600 ml-2" />}
+          </MenuItem>
+        ))}
+      </Menu>
+    </div>
+  );
+}
 // Componente para vista de tabla - ACTUALIZADO con bordes aesthetic
 function VistaTabla({ productos, formatearPrecio, getColorStock, obtenerNombreCategoria, onEditar, onEliminar }) {
   return (
@@ -485,71 +699,79 @@ function VistaTabla({ productos, formatearPrecio, getColorStock, obtenerNombreCa
   );
 }
 
-// Componente para vista de cards - ACTUALIZADO con bordes aesthetic
 function VistaCards({ productos, formatearPrecio, getColorStock, obtenerNombreCategoria, onEditar, onEliminar }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
       {productos.map((producto) => (
-        <div key={producto.id} className="group bg-white/70 backdrop-blur-lg rounded-3xl shadow-sm hover:shadow-2xl border border-slate-200/40 transition-all duration-500 hover:-translate-y-2 hover:border-slate-300/60">
-          <div className="p-6">
+        <div key={producto.id} className="group bg-white/70 backdrop-blur-lg rounded-3xl shadow-sm hover:shadow-2xl border border-slate-200/40 transition-all duration-500 hover:-translate-y-2 hover:border-slate-300/60 flex flex-col min-h-[280px]">
+          <div className="p-5 flex-1 flex flex-col">
             {/* Header con icono y stock */}
-            <div className="flex items-start justify-between mb-6">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <Inventory2 className="text-white text-2xl" />
+            <div className="flex items-start justify-between mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Inventory2 className="text-white text-xl" />
               </div>
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-sm ${getColorStock(producto.stock)}`}>
+              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xl font-medium border backdrop-blur-sm ${getColorStock(producto.stock)}`}>
                 {producto.stock} unidades
               </span>
             </div>
 
-            {/* Información del producto */}
-            <div className="mb-6">
-              <h3 className="font-bold text-slate-800 text-xl mb-3 line-clamp-2 group-hover:text-slate-900 transition-colors">{producto.nombre}</h3>
+            {/* Contenedor principal */}
+            <div className="space-y-3 flex-1">
+              <h3 className="font-bold text-slate-800 text-2xl line-clamp-2 group-hover:text-slate-900 transition-colors leading-tight">
+                {producto.nombre}
+              </h3>
 
               {producto.descripcion && (
-                <p className="text-slate-600 text-sm line-clamp-3 mb-4 leading-relaxed font-light">{producto.descripcion}</p>
+                <p className="text-slate-600 text-lg line-clamp-2 leading-relaxed font-light">
+                  {producto.descripcion}
+                </p>
               )}
-
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-purple-100/80 rounded-xl flex items-center justify-center border border-purple-200/60">
-                    <Category className="w-4 h-4 text-purple-600" />
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                {/* Columna izquierda - Categoría */}
+                <div className="flex items-start gap-2 min-w-0">
+                  <div className="w-6 h-6 bg-purple-100/80 rounded-lg flex items-center justify-center border border-purple-200/60 flex-shrink-0 mt-0.5">
+                    <Category className="w-3 h-3 text-purple-600" />
                   </div>
-                  <span className="text-sm text-slate-700 font-medium">
+                  <span className="text-xs text-slate-700 font-medium break-words line-clamp-2 min-w-0">
                     {obtenerNombreCategoria(producto.categoria_id)}
                   </span>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-emerald-100/80 rounded-xl flex items-center justify-center border border-emerald-200/60">
-                    <LocalOffer className="w-4 h-4 text-emerald-600" />
+                {/* Columna derecha - Precio */}
+                <div className="flex items-start gap-2 min-w-0">
+                  <div className="w-6 h-6 bg-emerald-100/80 rounded-lg flex items-center justify-center border border-emerald-200/60 flex-shrink-0 mt-0.5">
+                    <LocalOffer className="w-3 h-3 text-emerald-600" />
                   </div>
-                  <span className="font-bold text-emerald-600 text-xl">
+                  <span className="font-bold text-emerald-600 text-sm break-words min-w-0">
                     {formatearPrecio(producto.precio)}
                   </span>
                 </div>
               </div>
+
+              {/* Código de barras */}
+              {producto.codigo_barras && (
+                <div className="p-2 bg-slate-100/50 rounded-lg border border-slate-200/40 backdrop-blur-sm mt-3">
+                  <span className="text-xs text-slate-500 font-mono truncate block">
+                    Cód: {producto.codigo_barras}
+                  </span>
+                </div>
+              )}
             </div>
 
-            {/* Código de barras */}
-            {producto.codigo_barras && (
-              <div className="mb-6 p-3 bg-slate-100/50 rounded-xl border border-slate-200/40 backdrop-blur-sm">
-                <span className="text-xs text-slate-500 font-mono">Código: {producto.codigo_barras}</span>
-              </div>
-            )}
-
-            {/* Botones de acción */}
-            <div className="flex gap-3 pt-4 border-t border-slate-200/40">
+            {/* Botones */}
+            <div className="flex gap-2 pt-4 mt-4 border-t border-slate-200/40">
               <button
                 onClick={() => onEditar(producto)}
-                className="flex-1 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm border border-blue-400/30"
+                className="flex-1 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-blue-400/30 flex items-center justify-center gap-1"
               >
+                <Edit className="w-3 h-3" />
                 Editar
               </button>
               <button
                 onClick={() => onEliminar(producto.id)}
-                className="flex-1 py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm border border-rose-400/30"
+                className="flex-1 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
               >
+                <Delete className="w-3 h-3" />
                 Eliminar
               </button>
             </div>
@@ -559,7 +781,6 @@ function VistaCards({ productos, formatearPrecio, getColorStock, obtenerNombreCa
     </div>
   );
 }
-
 // Componente para vista de categorías - ACTUALIZADO con bordes aesthetic
 function VistaCategorias({ categorias, onEditar, onEliminar }) {
   return (

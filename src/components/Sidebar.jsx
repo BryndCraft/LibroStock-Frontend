@@ -9,18 +9,27 @@ import SchoolIcon from "@mui/icons-material/School";
 import PeopleIcon from "@mui/icons-material/People";
 import { useLogout } from "../pages/auth/Logout";
 import { useUser } from "../context/UserContext";
-
+import { useState } from "react";
+import { getMediaUrl } from "../apis/auth.api";
+import { useEffect } from "react";
+import { Person } from "@mui/icons-material";
 export default function Sidebar() {
   const location = useLocation(); 
   const handleLogout = useLogout();
   const {user} = useUser();
-  let name = user?.nombre || "usuario";
-  name = name[0].toUpperCase() + name.slice(1);
-  if (user?.apellido) {
-  const apellido = user.apellido[0].toUpperCase() + user.apellido.slice(1);
-  name = name + ' ' + apellido;
+  const [perfil, setPerfil] = useState({photo_perfil: ''});
+
+useEffect(() => {
+  if (user) {
+    const ruta = user.photo_perfil || '';
+    setPerfil(prev => ({
+      ...prev,
+      photo_perfil: ruta
+    }));
   }
-  console.log(name);
+}, [user]); 
+
+  
   const links = [
     { name: "Dashboard", path: "/", icon: <DashboardIcon className="mr-3 text-lg" /> },
     { name: "Facturacion", path: "/facturacion", icon: <ReceiptLongIcon className="mr-3 text-lg" /> },
@@ -28,23 +37,32 @@ export default function Sidebar() {
   ];
 
   return (
-    <div className="w-72 h-screen bg-gradient-to-b from-blue-700 to-blue-950 flex flex-col shadow-xl">
-      <div className="w-full py-6 flex flex-col items-center bg-blue-900/40 border-b border-blue-600">
-        <div className="bg-white rounded-full w-20 h-20 p-2 select-none shadow-lg mb-3">
+<div className="w-60 h-screen-full bg-gray-800 flex flex-col">
+
+       <div className="w-full py-6 flex flex-col items-center border-b border-gray-600">
+    <div className="bg-gray-600 rounded-full w-20 h-20 p-2 select-none shadow-lg mb-3">
           <img src={Logo} className="w-full h-full object-contain" alt="LibroStock Logo" />
         </div>
         <h2 className="text-white font-bold text-xl">LibroStock</h2>
         <p className="text-blue-200 text-sm">Librería Escolar</p>
       </div>
 
-      <Link to="/perfil" className="px-5 py-4 border-b border-blue-700 hover:bg-blue-700/50">
+      <Link to="/perfil" className="px-5 py-4 border-b border-gray-600 hover:bg-gray-600/50">
         <div className="flex items-center">
-          <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-            <PeopleIcon/>
+           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+ {perfil.photo_perfil ? (
+                                <img
+                                  src={getMediaUrl(perfil.photo_perfil)}
+                                  alt="Foto de perfil"
+                                  className="w-full h-full rounded-full object-cover"
+                                />
+                              ) : (
+                                <Person className="text-5xl" />
+                              )}
           </div>
           <div className="ml-3">
-            <h3 className="text-white font-semibold">{name}</h3>
-            <p className="text-blue-200 text-xs">Colegio Liceo Franciscano</p>
+            <h3 className="text-white font-semibold">{user ? user.rol : ''}</h3>
+            <p className="text-blue-300 text-xs">Colegio Liceo Franciscano</p>
           </div>
         </div>
       </Link>
@@ -57,7 +75,7 @@ export default function Sidebar() {
             <Link
               key={link.name}
               to={link.path}
-              className={`flex items-center text-white py-3 px-4 rounded-xl transition-all duration-300 mb-2 ${
+               className={`flex items-center text-white py-3 px-4 rounded-xl transition-all duration-300 mb-2 ${
                 isActive 
                   ? "bg-white/20 font-bold shadow-md border-l-4 border-yellow-400" 
                   : "hover:bg-blue-700/50"
@@ -70,7 +88,7 @@ export default function Sidebar() {
         })}
       </div>
 
-      <div className="p-5 border-t border-blue-700">
+      <div className="p-5 border-t border-gray-600">
         <button 
         type="button"
         onClick={async() => await handleLogout()}

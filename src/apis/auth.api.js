@@ -1,5 +1,5 @@
 import axios from 'axios';
-
+import { useUser } from '../context/UserContext';
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const usuariosApi = axios.create({
@@ -9,7 +9,8 @@ const usuariosApi = axios.create({
 usuariosApi.interceptors.request.use(
   (config) => {
     try {
-      const access = localStorage.getItem('token');
+      const access = sessionStorage.getItem('token');
+      console.log(access);
       if (access) {
         config.headers.Authorization = `Bearer ${access}`;
       }
@@ -22,7 +23,7 @@ usuariosApi.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// 🔹 Iniciar sesión (solo admin)
+
 export const login = (credentials) => {
   return usuariosApi.post("/login/", credentials);
 };
@@ -31,20 +32,37 @@ export const login = (credentials) => {
 export const logoutApi = () => {
   return usuariosApi.post("/logout/");
 };    
-
 export const uploadFoto = async(archivo) => {
   const formData = new FormData();
   formData.append("foto", archivo);
 
   try {
-    const response = await usuariosApi.post("/upload/", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-      },
-    });
-    return response.data;
+    const response = await usuariosApi.post("/upload/", formData);
+    return response;  
   } catch (error) {
     console.error("Error al subir la foto:", error);
     throw error;
   }
+};
+
+
+export const createUserApi = (data) => {
+  return usuariosApi.post("/create/", data);
+};
+
+export const updateUserApi = (data) => {
+  return usuariosApi.patch(`/update/${data.id}/`, data);
+};
+export const listUserApi = () => {
+  return usuariosApi.get(`/list/`);
+};
+export const deleteUserApi = (id) => {
+  return usuariosApi.delete(`/delete/${id}/`);
+};
+
+export const getMediaUrl = (ruta) => {
+  if (!ruta) return null;
+
+  const BASE = import.meta.env.VITE_API_BASE_URL;
+  return `${BASE}${ruta}`;
 };

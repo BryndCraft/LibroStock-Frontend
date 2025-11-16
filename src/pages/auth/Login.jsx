@@ -6,6 +6,8 @@ import Swal from 'sweetalert2';
 import { login } from "../../apis/auth.api";
 import { useNavigate } from 'react-router-dom';
 import { useUser } from "../../context/UserContext";
+import CircularProgress from '@mui/material/CircularProgress';
+
 
 export default function Login() {
   const { loginUser } = useUser();
@@ -17,25 +19,25 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!username || !password){
+    if (!username || !password) {
       Swal.fire('Campos incompletos.', 'Debes llenar todos los campos', 'warning');
       return;
     }
     setLoading(true);
-    try{
-      const response = await login({username, password});
+    try {
+      const response = await login({ username, password });
 
-      if (response.status === 200 ){
+      if (response.status === 200) {
         loginUser(response.data.user, response.data.token);
         await Swal.fire('Bienvenido', 'Inicio de Sesion exitoso', 'success');
         navi('/dashboard');
-        
+
       }
 
-    }catch(error){
+    } catch (error) {
       console.log(error);
-      Swal.fire("Error", "Credenciales incorrectas.", "error");  
-    }finally{
+      Swal.fire("Error", "Credenciales incorrectas.", "error");
+    } finally {
       setLoading(false);
     }
   }
@@ -43,6 +45,14 @@ export default function Login() {
 
   return (
     <div className="relative h-screen w-full">
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+
+          <div className="absolute inset-0 backdrop-blur-sm"></div>
+
+          <CircularProgress size={60} color="primary" />
+        </div>
+      )}
       <img
         src={Fondo}
         alt="Fondo"
@@ -85,11 +95,11 @@ export default function Login() {
                   onChange={((e) => setPassword(e.target.value))}
                 />
                 <button
-                type="button"
+                  type="button"
                   className="bg-white rounded-full items-center justify-center w-10 y-10 flex hover:cursor-pointer hover:bg-gray-400"
-                  onClick={() => setPasswordVisible(!passwordVisible)}  
+                  onClick={() => setPasswordVisible(!passwordVisible)}
                 >
-                 {passwordVisible ? (
+                  {passwordVisible ? (
                     <EyeOffIcon className="text-gray-400" />
                   ) : (
                     <EyeIcon className="text-gray-400" />
@@ -98,9 +108,9 @@ export default function Login() {
               </div>
 
               <div className="w-full flex justify-center items-center">
-                <button disabled={loading} className="rounded-4xl bg-white flex justify-center text-gray-700 w-[50%] h-10 items-center hover:cursor-pointer hover:bg-amber-400 hover:text-white select-none" 
-                type="submit">
-                  <span className="select-none">{loading ? 'Entrando' : 'Ingrsar'}</span>
+                <button disabled={loading} className="rounded-4xl bg-white flex justify-center text-gray-700 w-[50%] h-10 items-center hover:cursor-pointer hover:bg-amber-400 hover:text-white select-none">
+                  <span className="select-none">Ingresar</span>
+
                 </button>
               </div>
             </form>

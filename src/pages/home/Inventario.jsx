@@ -4,7 +4,8 @@ import { CategoriaForm } from "../../components/Forms/CategoriaForms";
 import { ProductoForm } from "../../components/Forms/ProductoForms";
 import { KeyboardArrowDown, Check } from "@mui/icons-material";
 import { searchCategorias, createCategoria, updateCategoria, deleteCategoria } from "../../apis/categorias.api";
-import { searchProductos, createProducto, updateProducto, deleteProducto } from "../../apis/productos.api";
+import { searchProductos, createProducto, updateProducto, deleteProducto, activateProductos } from "../../apis/productos.api";
+import { ToggleOn, ToggleOff } from "@mui/icons-material";
 import {
   Search,
   Add,
@@ -20,7 +21,7 @@ import {
   Inventory
 
 } from "@mui/icons-material";
-
+import { Warning, TaskAlt } from "@mui/icons-material";
 
 import { ChevronUpDownIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { Menu, MenuItem, Button } from "@mui/material";
@@ -90,25 +91,48 @@ export default function Inventario() {
     setProductoEditando(producto);
     setMostrarFormProducto(true);
   };
-
-  const handleEliminarProducto = async (productoId) => {
+  const activarProducto = async (productoId) => {
     const result = await Swal.fire({
-      title: `¿Eliminar el producto?`,
+      title: `¿Activar el producto?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: 'Sí, activar',
+      cancelButtonText: 'Cancelar'
+    });
+    if (result.isConfirmed) {
+      try {
+        const response = await activateProductos(productoId);
+        if (response.status === 200) {
+          cargarProductos();
+          Swal.fire("Activado!", "El producto ha sido activado", "sucess");
+        } else {
+          Swal.fire("Error", "Hubo un error al activar el producto", "error");
+        }
+      } catch (error) {
+        Swal.fire("Error", "Hubo un error al activar el producto", "error");
+      }
+    }
+  }
+  const handleEliminarProducto = async (productoId) => {
+    const result = await Swal.fire({
+      title: `¿Desactivar el producto?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, desactivar',
       cancelButtonText: 'Cancelar'
     });
     if (result.isConfirmed) {
       try {
         await deleteProducto(productoId);
         cargarProductos();
-        Swal.fire('¡Eliminado!', 'El producto ha sido eliminado.', 'success');
+        Swal.fire('¡Desactivado!', 'El producto ha sido desactivado.', 'success');
       } catch (error) {
         console.error("Error deleting categories:", error);
-        Swal.fire('Error', 'No se pudo eliminar el producto', 'error');
+        Swal.fire('Error', 'No se pudo desactivar el producto', 'error');
       }
     }
   };
@@ -458,6 +482,7 @@ export default function Inventario() {
                         obtenerNombreCategoria={obtenerNombreCategoria}
                         onEditar={handleEditarProducto}
                         onEliminar={handleEliminarProducto}
+                        onActivar={activarProducto}
                       />
                     )}
                   </div>
@@ -590,7 +615,7 @@ function VistaTabla({ productos, formatearPrecio, getColorStock, obtenerNombreCa
   );
 }
 
-function VistaCards({ productos, formatearPrecio, getColorStock, obtenerNombreCategoria, onEditar, onEliminar }) {
+function VistaCards({ productos, formatearPrecio, getColorStock, obtenerNombreCategoria, onEditar, onEliminar, onActivar }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
       {productos.map((producto) => (
@@ -600,7 +625,7 @@ function VistaCards({ productos, formatearPrecio, getColorStock, obtenerNombreCa
             <div className="flex items-start justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <Inventory2 className="text-white text-xl" />
-              </div>
+              </div>            
               <span className={`inline-flex items-center px-2 py-1 rounded-full text-xl font-medium border backdrop-blur-sm ${getColorStock(producto.stock)}`}>
                 {producto.stock} unidades
               </span>
@@ -658,13 +683,25 @@ function VistaCards({ productos, formatearPrecio, getColorStock, obtenerNombreCa
                 <Edit className="w-3 h-3" />
                 Editar
               </button>
-              <button
+              {producto.activo ? (
+                            <button
                 onClick={() => onEliminar(producto.id)}
                 className="flex-1 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
               >
-                <Delete className="w-3 h-3" />
-                Eliminar
+                <ToggleOff className="w-3 h-3" />
+                Desactivar
               </button>
+  
+              ) : (
+                <button
+                onClick={() => onActivar(producto.id)}
+                className="flex-1 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
+              >
+                <ToggleOn className="w-3 h-3" />
+                Activar
+              </button>
+  
+              )}
             </div>
           </div>
         </div>

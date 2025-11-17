@@ -5,8 +5,25 @@ const productosApi = axios.create({
   baseURL: `${baseURL}/Productos/api/v1`
 });
 
+
+productosApi.interceptors.request.use(
+  (config) => {
+    try {
+      const access = sessionStorage.getItem('token');      
+      if (access) {
+        config.headers.Authorization = `Bearer ${access}`;
+      }
+    } catch (error) {
+      console.log('Error leyendo localStorage:', error);
+      
+    }
+    return config; 
+  },
+  (error) => Promise.reject(error)
+);
+
 export const searchProductos = (search, page) => {
-    return productosApi.post(`/search/${page}/`, {search});
+    return productosApi.get(`/search/${page}/`, {search});
 };
 
 export const createProducto = (producto) => {

@@ -5,8 +5,26 @@ const categoriasApi = axios.create({
   baseURL: `${baseURL}/Categorias/api/v1`
 });
 
+
+categoriasApi.interceptors.request.use(
+  (config) => {
+    try {
+      const access = sessionStorage.getItem('token');
+      console.log(access);
+      if (access) {
+        config.headers.Authorization = `Bearer ${access}`;
+      }
+    } catch (error) {
+      console.log('Error leyendo localStorage:', error);
+      
+    }
+    return config; 
+  },
+  (error) => Promise.reject(error)
+);
+
 export const searchCategorias = (search, page) => {
-    return categoriasApi.post(`/search/${page}/`, {search});
+    return categoriasApi.get(`/search/${page}/`, {search});
 }
 
 export const createCategoria = (categoria) => {

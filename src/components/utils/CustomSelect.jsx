@@ -8,7 +8,7 @@
   import Select from '@mui/material/Select';
 
   const ITEM_HEIGHT = 48;
-  const ITEM_PADDING_TOP = 8;
+  const ITEM_PADDING_TOP = 4;
   const MenuProps = {
     PaperProps: {
       style: {
@@ -36,7 +36,8 @@
     margin = 1,
     required = false,
     disabled = false, 
-    startAdornment = null
+    startAdornment = null, 
+    borderRadius = 4
   }) {
     const theme = useTheme();
   const handleChange = (event) => {
@@ -57,7 +58,15 @@
     };
 
     return (
-       <FormControl sx={{ m: margin, width: width }} required={required}>
+       <FormControl 
+       sx={{ 
+        m: margin, 
+        width: width,
+        '& .MuiOutlinedInput-root': {
+          borderRadius: borderRadius,
+        } 
+        }} 
+        required={required}>
       <InputLabel 
         id={`custom-select-label-${label}`}
         sx={{

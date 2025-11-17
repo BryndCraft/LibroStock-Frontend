@@ -14,8 +14,11 @@ import {
   Visibility,
   VisibilityOff,
   DeleteForever,
-
+  Lock as LockIcon,
+  RemoveRedEye as EyeIcon,
+  VisibilityOff as EyeOffIcon
 } from "@mui/icons-material";
+
 import CustomSelect from "../../components/utils/CustomSelect";
 import Swal from "sweetalert2";
 import { createUserApi, listUserApi, updateUserApi, deleteUserApi, uploadFoto, getMediaUrl } from "../../apis/auth.api";
@@ -39,7 +42,9 @@ export default function Perfil() {
   const [mostrarFormUsuario, setMostrarFormUsuario] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState(null);
   const [fotoPreview, setFotoPreview] = useState(null);
-
+  const [confirmarPassword, setConfirmarPassword] = useState('');
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [nuevoUsuario, setNuevoUsuario] = useState({
     nombre: "",
     apellido: "",
@@ -122,48 +127,54 @@ export default function Perfil() {
       username: "",
     });
   };
-const guardarPerfil = async () => {
-  
-  if (!perfil.id) {
-    Swal.fire("Error!", "No se pudo actualizar el perfil porque no hay ID.", "error");
-    return;
-  }
+  const guardarPerfil = async () => {
 
-  const dataEnviar = {
-    id: perfil.id,
-    nombre: perfil.nombre,
-    apellido: perfil.apellido,
-    correo: perfil.correo,
-    rol: perfil.rol,
-    photo_perfil: perfil.photo_perfil || '', 
-    // cambiar password?
+    if (!perfil.id) {
+      Swal.fire("Error!", "No se pudo actualizar el perfil porque no hay ID.", "error");
+      return;
+    }
+
+    const dataEnviar = {
+      id: perfil.id,
+      nombre: perfil.nombre,
+      apellido: perfil.apellido,
+      correo: perfil.correo,
+      rol: perfil.rol,
+      photo_perfil: perfil.photo_perfil || '',
+      password: perfil.password || '',
+      // cambiar password?
+    };
+
+    try {
+      const response = await updateUserApi(dataEnviar);
+      if (response.status === 200) {
+        setEditando(false);
+        Swal.fire("Actualizado", "Perfil actualizado correctamente.", "success");
+        updateUser(dataEnviar); // Actualiza el contexto global
+      } else {
+        Swal.fire("Error!", "No se pudo actualizar el perfil.", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error!", "Ocurrió un error al actualizar el perfil.", "error");
+    }
   };
 
-  try {
-    const response = await updateUserApi(dataEnviar);
-    if (response.status === 200) {
-      setEditando(false);
-      Swal.fire("Actualizado", "Perfil actualizado correctamente.", "success");
-      updateUser(dataEnviar); // Actualiza el contexto global
-    } else {
-      Swal.fire("Error!", "No se pudo actualizar el perfil.", "error");
-    }
-  } catch (error) {
-    console.error(error);
-    Swal.fire("Error!", "Ocurrió un error al actualizar el perfil.", "error");
-  }
-};
-
   // Cancelar edición
-const cancelarEdicion = () => {
-  setPerfil({ ...user }); 
-  setEditando(false);
-  setFotoPreview(null);
-};
+  const cancelarEdicion = () => {
+    setPerfil({ ...user });
+    setEditando(false);
+    setConfirmarPassword('');
+    setFotoPreview(null);
+  };
 
   // Crear nuevo usuario
   const crearUsuario = async () => {
     if (!nuevoUsuario.nombre || !nuevoUsuario.apellido || !nuevoUsuario.correo || !nuevoUsuario.password || !nuevoUsuario.username) {
+      if (nuevaPassword && nuevaPassword !== confirmarPassword) {
+        Swal.fire('Advertencia!', "Las contraseñas no coinciden", "warning");
+        return;
+      }
       Swal.fire({
         title: "Advertencia",
         text: "Debes llenar todos los campos.",
@@ -194,36 +205,36 @@ const cancelarEdicion = () => {
 
   const editarUsuario = (usuario) => setUsuarioEditando({ ...usuario });
 
-const guardarUsuarioEditado = async () => {
-  if (!usuarioEditando?.id) {
-    Swal.fire("Error", "No se pudo actualizar el usuario porque no hay ID.", "error");
-    return;
-  }
-
-  const dataEnviar = {
-    id: usuarioEditando.id,
-    nombre: usuarioEditando.nombre,
-    apellido: usuarioEditando.apellido,
-    correo: usuarioEditando.correo,
-    rol: usuarioEditando.rol,
-    photo_perfil: usuarioEditando.photo_perfil || '',
-    //password se puede actualizar?
-  };
-
-  try {
-    const response = await updateUserApi(dataEnviar);
-    if (response.status === 200) {
-      Swal.fire("Actualizado", "Usuario actualizado correctamente.", "success");
-      setUsuarioEditando(null);
-      listarUsuarios(); // refresca la lista
-    } else {
-      Swal.fire("Error", "No se pudo actualizar el usuario.", "error");
+  const guardarUsuarioEditado = async () => {
+    if (!usuarioEditando?.id) {
+      Swal.fire("Error", "No se pudo actualizar el usuario porque no hay ID.", "error");
+      return;
     }
-  } catch (error) {
-    console.error(error);
-    Swal.fire("Error", "Ocurrió un error al actualizar el usuario.", "error");
-  }
-};
+
+    const dataEnviar = {
+      id: usuarioEditando.id,
+      nombre: usuarioEditando.nombre,
+      apellido: usuarioEditando.apellido,
+      correo: usuarioEditando.correo,
+      rol: usuarioEditando.rol,
+      photo_perfil: usuarioEditando.photo_perfil || '',
+      //password se puede actualizar?
+    };
+
+    try {
+      const response = await updateUserApi(dataEnviar);
+      if (response.status === 200) {
+        Swal.fire("Actualizado", "Usuario actualizado correctamente.", "success");
+        setUsuarioEditando(null);
+        listarUsuarios(); // refresca la lista
+      } else {
+        Swal.fire("Error", "No se pudo actualizar el usuario.", "error");
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "Ocurrió un error al actualizar el usuario.", "error");
+    }
+  };
   const eliminarUsuario = async (id) => {
     const result = await Swal.fire({
       title: "¿Desactivar Usuario?",
@@ -315,34 +326,37 @@ const guardarUsuarioEditado = async () => {
 
               {/* Información del perfil */}
               <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-                  {editando ? (
-                    <input
-                      type="text"
-                      value={perfil?.nombre || 'Nombre'}
-                      onChange={(e) => setPerfil(prev => ({ ...prev, nombre: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  ) : (
-                    <p className="text-gray-900 font-medium">{perfil?.nombre || 'Nombre'}</p>
-                  )}
-                </div>
+                <div className="flex gap-30">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                    {editando ? (
+                      <input
+                        type="text"
+                        value={perfil?.nombre || 'Nombre'}
+                        onChange={(e) => setPerfil(prev => ({ ...prev, nombre: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    ) : (
+                      <p className="text-gray-900 font-medium">{perfil?.nombre || 'Nombre'}</p>
+                    )}
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
-                  {editando ? (
-                    <input
-                      type="text"
-                      value={perfil?.apellido || 'Apellido'}
-                      onChange={(e) => setPerfil(prev => ({ ...prev, apellido: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  ) : (
-                    <p className="text-gray-900 font-medium">{perfil?.apellido || 'Apellido'}</p>
-                  )}
-                </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Apellido</label>
+                    {editando ? (
+                      <input
+                        type="text"
+                        value={perfil?.apellido || 'Apellido'}
+                        onChange={(e) => setPerfil(prev => ({ ...prev, apellido: e.target.value }))}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                    ) : (
+                      <p className="text-gray-900 font-medium">{perfil?.apellido || 'Apellido'}</p>
+                    )}
+                  </div>
 
+
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-2">
                     <Email className="text-gray-400 text-sm" />
@@ -351,7 +365,7 @@ const guardarUsuarioEditado = async () => {
                   {editando ? (
                     <input
                       type="email"
-                      value={perfil?.correo || 'Correo'}
+                      value={perfil?.correo || ''}
                       onChange={(e) => setPerfil(prev => ({ ...prev, correo: e.target.value }))}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
@@ -379,6 +393,65 @@ const guardarUsuarioEditado = async () => {
                     <p className="text-gray-900 font-medium">{perfil?.rol || 'Rol'}</p>
                   )}
                 </div>
+                {editando && (
+                  <>
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                      <div className="relative bg-white flex items-center rounded-lg h-12 w-full pl-10 pr-3 border border-gray-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-200 shadow-sm hover:shadow-md">
+                        <LockIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none select-none w-5 h-5" />
+                        <input
+                          type={passwordVisible ? "text" : "password"}
+                          className="focus:outline-none w-full bg-transparent text-gray-900 placeholder-gray-500 text-sm"
+                          placeholder="Nueva contraseña"
+                          value={perfil.password || ''}
+                          onChange={(e) => setPerfil(prev => ({ ...prev, password: e.target.value }))}
+                        />
+                        <button
+                          type="button"
+                          className="bg-transparent rounded-lg w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          onClick={() => setPasswordVisible(!passwordVisible)}
+                          aria-label={passwordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+                        >
+                          {passwordVisible ? (
+                            <EyeOffIcon className="text-gray-600 w-5 h-5" />
+                          ) : (
+                            <EyeIcon className="text-gray-600 w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar Contraseña</label>
+                      <div className="relative bg-white flex items-center rounded-lg h-12 w-full pl-10 pr-3 border border-gray-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-200 shadow-sm hover:shadow-md">
+                        <LockIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none select-none w-5 h-5" />
+                        <input
+                          type={confirmPasswordVisible ? "text" : "password"}
+                          className="focus:outline-none w-full bg-transparent text-gray-900 placeholder-gray-500 text-sm"
+                          placeholder="Confirmar nueva contraseña"
+                          value={confirmarPassword}
+                          onChange={(e) => setConfirmarPassword(e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          className="bg-transparent rounded-lg w-8 h-8 flex items-center justify-center hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+                          aria-label={confirmPasswordVisible ? "Ocultar contraseña" : "Mostrar contraseña"}
+                        >
+                          {confirmPasswordVisible ? (
+                            <EyeOffIcon className="text-gray-600 w-5 h-5" />
+                          ) : (
+                            <EyeIcon className="text-gray-600 w-5 h-5" />
+                          )}
+                        </button>
+                      </div>
+                      {perfil.password && confirmarPassword && perfil.password !== confirmarPassword && (
+                        <p className="text-red-500 text-xs mt-1">Las contraseñas no coinciden</p>
+                      )}
+                    </div>
+                  </>
+                )}
+
 
                 {/* Botones de acción del perfil */}
                 <div className="pt-4 flex gap-3">
@@ -438,22 +511,22 @@ const guardarUsuarioEditado = async () => {
                       <div key={user.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
                         <div className="flex items-center gap-4">
                           <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
-                    {fotoPreview ? (
-                      <img
-                        src={fotoPreview}
-                        alt="Foto de perfil"
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : user.photo_perfil ? (
-                      <img
-                        src={getMediaUrl(user.photo_perfil)}
-                        alt="Foto de perfil"
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : (
-                      <Person className="text-5xl" />
-                    )}
-                  </div>
+                            {fotoPreview ? (
+                              <img
+                                src={fotoPreview}
+                                alt="Foto de perfil"
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : user.photo_perfil ? (
+                              <img
+                                src={getMediaUrl(user.photo_perfil)}
+                                alt="Foto de perfil"
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <Person className="text-5xl" />
+                            )}
+                          </div>
                           <div>
                             <h3 className="font-semibold text-gray-900">
                               {user.nombre} {user.apellido}
@@ -549,16 +622,32 @@ const guardarUsuarioEditado = async () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Contrasena</label>
+                <div className="relative bg-white flex items-center rounded-lg h-12 w-100 pl-10 pr-3 border border-gray-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-200 shadow-sm hover:shadow-md">
+                  <LockIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none select-none w-5 h-5" />
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña *</label>
                   <input
-                    type="password"
+                    type={passwordVisible ? "text" : "password"}
+                    className="focus:outline-none w-full"
+                    placeholder="Contraseña"
                     value={nuevoUsuario.password}
-                    onChange={(e) => setNuevoUsuario(prev => ({ ...prev, password: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    onChange={((e) => setNuevoUsuario(prev => ({ ...prev, password: e.target.value })))}
+
+
                   />
+                  <button
+                    type="button"
+                    className="bg-white rounded-full items-center justify-center w-10 y-10 flex hover:cursor-pointer hover:bg-gray-400"
+                    onClick={() => setPasswordVisible(!passwordVisible)}
+                  >
+                    {passwordVisible ? (
+                      <EyeOffIcon className="text-gray-400" />
+                    ) : (
+                      <EyeIcon className="text-gray-400" />
+                    )}
+                  </button>
                 </div>
+
 
                 <CustomSelect
                   label="Rol del usuario"
@@ -569,6 +658,7 @@ const guardarUsuarioEditado = async () => {
                   width="100%"
                   margin={0}
                   required={true}
+                  borderRadius={3}
                 />
               </div>
 
@@ -626,6 +716,42 @@ const guardarUsuarioEditado = async () => {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre de Usuario *</label>
+                <input
+                  type="text"
+                  value={usuarioEditando.username}
+                  onChange={(e) => setUsuarioEditando(prev => ({ ...prev, username: e.target.value }))}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Contrasena</label>
+              <div className="relative bg-white flex items-center rounded-lg h-12 w-100 pl-10 pr-3 border border-gray-300 focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-200 transition-all duration-200 shadow-sm hover:shadow-md">
+                <LockIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none select-none w-5 h-5" />
+
+                <input
+                  type={passwordVisible ? "text" : "password"}
+                  className="focus:outline-none w-full"
+                  placeholder="Contraseña"
+                  value={usuarioEditando.password}
+                  onChange={((e) => setUsuarioEditando(prev => ({ ...prev, password: e.target.value })))}
+
+
+                />
+                <button
+                  type="button"
+                  className="bg-white rounded-full items-center justify-center w-10 y-10 flex hover:cursor-pointer hover:bg-gray-400"
+                  onClick={() => setPasswordVisible(!passwordVisible)}
+                >
+                  {passwordVisible ? (
+                    <EyeOffIcon className="text-gray-400" />
+                  ) : (
+                    <EyeIcon className="text-gray-400" />
+                  )}
+                </button>
+              </div>
+
+
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>

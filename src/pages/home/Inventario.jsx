@@ -17,11 +17,17 @@ import {
   Dashboard,
   Clear,
   FilterList,
+  Inventory
+
 } from "@mui/icons-material";
-import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/react'
+
+
 import { ChevronUpDownIcon, CheckIcon } from '@heroicons/react/24/outline'
 import { Menu, MenuItem, Button } from "@mui/material";
 import Swal from "sweetalert2";
+import CustomSelect from "../../components/utils/CustomSelect";
+
+
 
 export default function Inventario() {
   const [mostrarFormProducto, setMostrarFormProducto] = useState(false);
@@ -283,19 +289,65 @@ export default function Inventario() {
                     />
                   </div>
 
-                  <div className="md:col-span-2">
-                    <SelectCategoria
-                      filtroCategoria={filtroCategoria}
-                      setFiltroCategoria={setFiltroCategoria}
-                      categorias={categorias} />
-                  </div>
-                  <div className="md:col-span-2">
 
-                    <SelectStock
-                      filtroStock={filtroStock}
-                      setFiltroStock={setFiltroStock}
+                  <div className="md:col-span-2">
+                    <CustomSelect
+                      label="Categorías"
+                      options={[
+                        { value: '', label: 'Todas las categorías' },
+                        ...categorias.map(cat => ({
+                          value: cat.id.toString(),
+                          label: cat.nombre
+                        }))
+                      ]}
+                      value={filtroCategoria}
+                      onChange={setFiltroCategoria}
+                      width="100%"
+                      margin={0}
+                      required={false}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                          backdropFilter: 'blur(8px)',
+                          borderRadius: '16px',
+                          border: '1px solid rgba(226, 232, 240, 0.8)',
+                          '&:hover': {
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            borderColor: 'rgba(203, 213, 225, 0.8)'
+                          }
+                        }
+                      }}
                     />
                   </div>
+                  <div className="md:col-span-2">
+                    <CustomSelect
+                      label="Estado de stock"
+                      options={[
+                        { value: '', label: 'Estado de stock' },
+                        { value: 'con-stock', label: 'Con stock' },
+                        { value: 'sin-stock', label: 'Sin stock' },
+                        { value: 'stock-bajo', label: 'Stock bajo' },
+                      ]}
+                      value={filtroStock}
+                      onChange={setFiltroStock}
+                      width="100%"
+                      margin={0}
+                      required={false}
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                          backdropFilter: 'blur(8px)',
+                          borderRadius: '16px',
+                          border: '1px solid rgba(226, 232, 240, 0.8)',
+                          '&:hover': {
+                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                            borderColor: 'rgba(203, 213, 225, 0.8)'
+                          }
+                        }
+                      }}
+                    />
+                  </div>
+
 
                   {/* Botones de vista - ocupa 2 columnas */}
                   <div className="md:col-span-3">
@@ -463,165 +515,6 @@ export default function Inventario() {
   );
 }
 
-
-
-function SelectStock({ filtroStock, setFiltroStock }) {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  const opcionesStock = [
-    { value: '', label: 'Estado de stock' },
-    { value: 'con-stock', label: 'Con stock' },
-    { value: 'sin-stock', label: 'Sin stock' },
-    { value: 'stock-bajo', label: 'Stock bajo' },
-  ];
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleSelect = (value) => {
-    setFiltroStock(value);
-    handleClose();
-  };
-
-  return (
-    <div className="md:col-span-2">
-      <Button
-        className="w-full px-4 py-3 border border-slate-200/80 rounded-2xl bg-white/70 backdrop-blur-sm text-slate-700 normal-case font-normal justify-between hover:bg-white/90 transition-all duration-200"
-        onClick={handleClick}
-        endIcon={<KeyboardArrowDown />}
-        sx={{
-          color: '#374151', // text-gray-700
-          textTransform: 'none',
-          fontSize: '1rem',
-          fontWeight: 'normal',
-          border: '1px solid rgba(226, 232, 240, 0.8)',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            borderColor: 'rgba(203, 213, 225, 0.8)'
-          }
-        }}
-      >
-        {opcionesStock.find(op => op.value === filtroStock)?.label || 'Estado de stock'}
-      </Button>
-      
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        className="mt-2"
-        PaperProps={{
-          className: "bg-white/95 backdrop-blur-lg border border-slate-200/80 rounded-2xl shadow-lg shadow-slate-200/20 py-2"
-        }}
-      >
-        {opcionesStock.map((opcion) => (
-          <MenuItem
-            key={opcion.value}
-            onClick={() => handleSelect(opcion.value)}
-            className={`py-3 px-4 ${filtroStock === opcion.value ? 'bg-blue-100/80 font-medium' : ''}`}
-            sx={{
-              textTransform: 'none',
-              fontSize: '1rem',
-              fontWeight: filtroStock === opcion.value ? '600' : 'normal',
-            }}
-          >
-            <span className="flex-1">{opcion.label}</span>
-            {filtroStock === opcion.value && <Check className="w-5 h-5 text-blue-600 ml-2" />}
-          </MenuItem>
-        ))}
-      </Menu>
-    </div>
-  );
-}
-
-function SelectCategoria({ filtroCategoria, setFiltroCategoria, categorias }) {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleSelect = (value) => {
-    setFiltroCategoria(value);
-    handleClose();
-  };
-
-  return (
-    <div className="md:col-span-2">
-      <Button
-        className="w-full px-4 py-3 border border-slate-200/80 rounded-4xl bg-white/70 backdrop-blur-sm text-slate-700 normal-case font-normal justify-between hover:bg-white/90 transition-all duration-200"
-        onClick={handleClick}
-        endIcon={<KeyboardArrowDown />}
-        sx={{
-          color: '#374151', // text-gray-700
-          textTransform: 'none',
-          fontSize: '1rem',
-          fontWeight: 'normal',
-          border: '1px solid rgba(226, 232, 240, 0.8)',
-          '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.9)',
-            borderColor: 'rgba(203, 213, 225, 0.8)'
-          }
-        }}
-      >
-        {filtroCategoria === ''
-          ? 'Todas las categorías'
-          : categorias.find(cat => cat.id.toString() === filtroCategoria.toString())?.nombre || 'Todas las categorías'
-        }
-      </Button>
-      
-      <Menu
-        anchorEl={anchorEl}
-        open={open}
-        onClose={handleClose}
-        className="mt-2"
-        PaperProps={{
-          className: "bg-white/95 backdrop-blur-lg border border-slate-200/80 rounded-2xl shadow-lg shadow-slate-200/20 py-2"
-        }}
-      >
-        <MenuItem
-          onClick={() => handleSelect('')}
-          className={`py-3 px-4 ${filtroCategoria === '' ? 'bg-blue-100/80 font-medium' : ''}`}
-          sx={{
-            textTransform: 'none',
-            fontSize: '1rem',
-            fontWeight: filtroCategoria === '' ? '600' : 'normal',
-          }}
-        >
-          <span className="flex-1">Todas las categorías</span>
-          {filtroCategoria === '' && <Check className="w-5 h-5 text-blue-600 ml-2" />}
-        </MenuItem>
-        
-        {categorias.map((cat) => (
-          <MenuItem
-            key={cat.id}
-            onClick={() => handleSelect(cat.id)}
-            className={`py-3 px-4 ${filtroCategoria === cat.id ? 'bg-blue-100/80 font-medium' : ''}`}
-            sx={{
-              textTransform: 'none',
-              fontSize: '1rem',
-              fontWeight: filtroCategoria === cat.id ? '600' : 'normal',
-            }}
-          >
-            <span className="flex-1">{cat.nombre}</span>
-            {filtroCategoria === cat.id && <Check className="w-5 h-5 text-blue-600 ml-2" />}
-          </MenuItem>
-        ))}
-      </Menu>
-    </div>
-  );
-}
-// Componente para vista de tabla - ACTUALIZADO con bordes aesthetic
 function VistaTabla({ productos, formatearPrecio, getColorStock, obtenerNombreCategoria, onEditar, onEliminar }) {
   return (
     <div className="overflow-x-auto rounded-2xl border border-slate-200/40">

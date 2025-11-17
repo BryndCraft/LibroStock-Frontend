@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Save, Cancel, Category, Description, Archive } from "@mui/icons-material";
-
+import Swal from "sweetalert2";
 export function CategoriaForm({ categoria, onSave, onCancel }) {
   const [formData, setFormData] = useState({
     nombre: categoria?.nombre || "",
@@ -13,7 +13,7 @@ export function CategoriaForm({ categoria, onSave, onCancel }) {
     e.preventDefault();
 
     if (!formData.nombre.trim()) {
-      alert('El nombre de la categoría es requerido');
+      Swal.fire('Advertencia','El nombre de la categoría es requerido', 'warning');
       return;
     }
 

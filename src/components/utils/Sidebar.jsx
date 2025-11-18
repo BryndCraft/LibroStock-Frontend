@@ -14,7 +14,7 @@ import { getMediaUrl } from "../../apis/auth.api";
 import { useEffect } from "react";
 import { Person } from "@mui/icons-material";
 import  SupervisedUserCircleIcon  from '@mui/icons-material/SupervisedUserCircle';
-
+import { LibraryAdd } from "@mui/icons-material";
 export default function Sidebar() {
   const location = useLocation();
   const handleLogout = useLogout();
@@ -36,7 +36,9 @@ export default function Sidebar() {
     { name: "Dashboard", path: "/", icon: <DashboardIcon className="mr-3 text-lg" /> },
     { name: "Facturacion", path: "/facturacion", icon: <ReceiptLongIcon className="mr-3 text-lg" /> },
     { name: "Inventario", path: "/inventario", icon: <InventoryIcon className="mr-3 text-lg" /> },
-    { name: "Proveedores", path:"/proveedores", icon:<SupervisedUserCircleIcon className="mr-3 text-lg"/>}
+    { name: "Proveedores", path:"/proveedores", icon:<SupervisedUserCircleIcon className="mr-3 text-lg"/>}, 
+    { name: "Compras", path:"/compras", icon:<LibraryAdd className="mr-3 text-lg"/>}, 
+    
   ];
 
   return (

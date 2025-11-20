@@ -1,7 +1,7 @@
 import { Edit, Delete, Inventory2, Category, LocalOffer } from '@mui/icons-material';
+import { ToggleOn, ToggleOff } from "@mui/icons-material";
 
-
-export default function VistaCards({ productos, formatearPrecio, getColorStock, obtenerNombreCategoria, onEditar, onEliminar }) {
+export default function VistaCards({ productos, formatearPrecio, getColorStock, obtenerNombreCategoria, onEditar, onEliminar, onActivar  }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
       {productos.map((producto) => (
@@ -69,13 +69,26 @@ export default function VistaCards({ productos, formatearPrecio, getColorStock, 
                 <Edit className="w-3 h-3" />
                 Editar
               </button>
-              <button
-                onClick={() => onEliminar(producto.id)}
-                className="flex-1 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
-              >
-                <Delete className="w-3 h-3" />
-                Eliminar
-              </button>
+              {producto.activo ? (
+                <button
+                  onClick={() => onEliminar(producto.id)}
+                  className="w-25 flex-1 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
+                >
+                  <ToggleOff className="w-3 h-3" />
+                  Desactivar
+                </button>
+
+              ) : (
+                <button
+                  onClick={() => onActivar(producto.id)}
+                  className="flex-1 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
+                >
+                  <ToggleOn className="w-3 h-3" />
+                  Activar
+                </button>
+
+              )}
+
             </div>
           </div>
         </div>

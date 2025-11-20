@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { createProducto, searchProductos, updateProducto, deleteProducto } from "../apis/productos.api";
+import { createProducto, searchProductos, updateProducto, deleteProducto, activateProducto } from "../apis/productos.api";
 import { AirlineSeatReclineExtraSharp } from "@mui/icons-material";
 const ProductosContext = createContext(null);
 
@@ -31,6 +31,10 @@ export const ProductosProvider = ({ children }) => {
     await deleteProducto(id);
     await cargarProductos();
   };
+  const activarProducto = async (id) => {
+    await activateProducto(id);
+    await cargarProductos();
+  };
     useEffect(() => {
     cargarProductos();
   }, []);
@@ -42,7 +46,8 @@ export const ProductosProvider = ({ children }) => {
         cargarProductos, 
         agregarProducto, 
         editarProducto, 
-        eliminarProducto
+        eliminarProducto, 
+        activarProducto,
       }}
     >
       {children}

@@ -3,8 +3,8 @@ import Sidebar from "../../components/utils/Sidebar";
 import { CategoriaForm } from "../../components/Forms/CategoriaForms";
 import { ProductoForm } from "../../components/Forms/ProductoForms";
 import { KeyboardArrowDown, Check } from "@mui/icons-material";
-import { searchCategorias, createCategoria, updateCategoria, deleteCategoria } from "../../apis/categorias.api";
-import { searchProductos, createProducto, updateProducto, deleteProducto, activateProductos } from "../../apis/productos.api";
+import { searchCategorias, createCategoria, updateCategoria, deleteCategoria, activateCategoria } from "../../apis/categorias.api";
+import { searchProductos, createProducto, updateProducto, deleteProducto, activateProducto } from "../../apis/productos.api";
 import { ToggleOn, ToggleOff } from "@mui/icons-material";
 import {
   Search,
@@ -103,7 +103,7 @@ export default function Inventario() {
     });
     if (result.isConfirmed) {
       try {
-        const response = await activateProductos(productoId);
+        const response = await activateProducto(productoId);
         if (response.status === 200) {
           cargarProductos();
           Swal.fire("Activado!", "El producto ha sido activado", "sucess");
@@ -141,16 +141,41 @@ export default function Inventario() {
     setCategoriaEditando(categoria);
     setMostrarFormCategoria(true);
   };
-
-  const handleEliminarCategoria = async (categoriaId) => {
+const activarCategoria = async (productoId) => {
     const result = await Swal.fire({
-      title: `¿Eliminar la categoria?`,
-      text: "Esta acción no se puede deshacer",
+      title: `¿Activar la categoria?`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: '#3085d6',
       cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, eliminar',
+      confirmButtonText: 'Sí, activar',
+      cancelButtonText: 'Cancelar'
+    });
+    if (result.isConfirmed) {
+      try {
+        const response = await activateProducto(productoId);
+        if (response.status === 200) {
+          cargarProductos();
+          Swal.fire("Activado!", "La categoria ha sido activada", "sucess");
+        } else {
+          Swal.fire("Error", "Hubo un error al activar la categoria", "error");
+        }
+      } catch (error) {
+        Swal.fire("Error", "Hubo un error al activar la categoria", "error");
+      }
+    }
+  }
+
+  
+  const handleEliminarCategoria = async (categoriaId) => {
+    const result = await Swal.fire({
+      title: `¿Desactivar la categoria?`,
+      text: "Hara que todos los productos relacionados queden sin categoria",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Sí, desactivar',
       cancelButtonText: 'Cancelar'
     });
     if (result.isConfirmed) {
@@ -521,7 +546,8 @@ export default function Inventario() {
               onCancel={() => {
                 setMostrarFormProducto(false);
                 setProductoEditando(null);
-              }}
+              }} 
+              text={"Stock"}
             />
           )}
 
@@ -723,7 +749,7 @@ function VistaCards({ productos, formatearPrecio, getColorStock, obtenerNombreCa
   );
 }
 // Componente para vista de categorías - ACTUALIZADO con bordes aesthetic
-function VistaCategorias({ categorias, onEditar, onEliminar }) {
+function VistaCategorias({ categorias, onEditar, onEliminar, onActivar }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {categorias.map((categoria) => (
@@ -761,12 +787,25 @@ function VistaCategorias({ categorias, onEditar, onEliminar }) {
               >
                 Editar
               </button>
-              <button
+              {categoria.activo ? (
+                            <button
                 onClick={() => onEliminar(categoria.id)}
-                className="flex-1 py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm border border-rose-400/30"
+                className="flex-1 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
               >
-                Eliminar
+                <ToggleOff className="w-3 h-3" />
+                Desactivar
               </button>
+  
+              ) : (
+                <button
+                onClick={() => onActivar(categoria.id)}
+                className="flex-1 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
+              >
+                <ToggleOn className="w-3 h-3" />
+                Activar
+              </button>
+  
+              )}
             </div>
           </div>
         </div>

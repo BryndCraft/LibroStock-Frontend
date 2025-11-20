@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Save, Cancel, Inventory2, LocalOffer, Description, Category, Archive, Numbers, Search } from "@mui/icons-material";
 import { searchCategorias } from "../../apis/categorias.api";
 import CustomSelect from "../utils/CustomSelect";
-export function ProductoForm({ producto, onSave, onCancel }) {
+export function ProductoForm({ producto, onSave, onCancel, text="" }) {
   const [formData, setFormData] = useState({
     nombre: producto?.nombre || "",
     descripcion: producto?.descripcion || "",
@@ -135,7 +135,7 @@ export function ProductoForm({ producto, onSave, onCancel }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Stock Inicial
+                {text || "Stock"} 
               </label>
               <div className="relative">
                 <Numbers className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />

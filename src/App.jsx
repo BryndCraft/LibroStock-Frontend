@@ -9,6 +9,10 @@ import { PrivateRoute } from "./components/Routes/PrivateRoute";
 import { Public } from "@mui/icons-material";
 import Perfil from "./pages/home/Perfil";
 import Proveedores from "./pages/home/Proveedores";
+import Compras from "./pages/home/Compras";
+import Movimientos from "./pages/home/Movimientos";
+
+
 function App() {
   return (
     <>
@@ -46,6 +50,17 @@ function App() {
           {<PrivateRoute>
             <Proveedores/>
           </PrivateRoute>} />
+
+          <Route path="/compras" element=
+          {<PrivateRoute>
+            <Compras/>
+          </PrivateRoute>} />
+          
+          <Route path="/movimientos" element=
+          {<PrivateRoute>
+            <Movimientos/>
+          </PrivateRoute>} />
+            
         </Routes>
       </BrowserRouter>
     </>

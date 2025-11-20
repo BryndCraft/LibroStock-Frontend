@@ -8,27 +8,30 @@ import TrendingDownIcon from "@mui/icons-material/TrendingDown";
 import Sidebar from "../../components/utils/Sidebar";
 import Card from "../../components/utils/Card";
 import { useUser } from "../../context/UserContext";
-import { searchProductos, updateProducto, deleteProducto } from "../../apis/productos.api";
 import { useState, useEffect } from "react";
 import CircularProgress from '@mui/material/CircularProgress';
 import ModalProductos from "../../components/utils/ProductosModal";
 import { useProductos } from "../../context/ProductosContext";
 import { useCategorias } from "../../context/CategoriasContext";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 export default function DashBoard() {
   const { user } = useUser();
-  const { productos, cargarProductos, editarProducto, eliminarProducto } = useProductos();
-  const { categorias, cargarCategorias, editarCategoria, eliminarCategoria } = useCategorias();
+  const { productos, cargarProductos, editarProducto, eliminarProducto, activarProducto } = useProductos();
+  const { categorias, cargarCategorias} = useCategorias();
   const [cargando, setCargando] = useState(true);
   const [stockBajo, setStockBajo] = useState(0);
   const [sinStock, setSinStock] = useState(0);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [productosModal, setProductosModal] = useState([]);
   const [tituloModal, setTituloModal] = useState("");
+  const [tipoModalActual, setTipoModalActual] = useState(""); 
+
+
   const navi = useNavigate();
   const obtenerNombreCategoria = (categoriaId) => {
     if (!categoriaId) return 'Sin categoría';
@@ -36,15 +39,21 @@ export default function DashBoard() {
     return categoria ? categoria.nombre : 'Sin categoría';
   };
 
+  const actualizarProductosModal = (tipo) => {
+    if (tipo === 'stockBajo'){
+      setProductosModal(productos.filter(p => p.stock > 0 && p.stock <= 5));
+      setTituloModal('Productos con Stock Bajo');
+    }else if (tipo === 'sinStock'){
+      setProductosModal(productos.filter(p => p.stock === 0));
+      setTituloModal('Productos sin Stock');
+    }
+  };
+
   const cargarDatosIniciales = async () => {
     try {
       setCargando(true);
-      await Promise.all([
-        cargarProductos(),
-        cargarCategorias(),
-        minusStock(productos), 
-        zeroStock(productos),
-      ]);
+      await cargarCategorias();
+      await cargarProductos();
     } catch (error) {
       console.error('Error cargando datos iniciales:', error);
     } finally {
@@ -57,28 +66,21 @@ export default function DashBoard() {
   };
 
   const handleAbrirModal = (tipo) => {
-    if (tipo === 'stockBajo') {
-      setProductosModal(productos.filter(p => p.stock > 0 && p.stock <= 5));
-      setTituloModal("Productos con Stock Bajo");
-      setTituloModal("Productos con Stock Bajo");
-    } else if (tipo === 'sinStock') {
-      setProductosModal(productos.filter(p => p.stock === 0));
-      setTituloModal("Productos Sin Stock");
-    }
+    setTipoModalActual(tipo);
+    actualizarProductosModal(tipo);
     setModalAbierto(true);
   }
   const handleCerrarModal = () => {
     setModalAbierto(false);
+    setTipoModalActual(""); 
   }
+  
   const getColorStock = (stock) => {
     if (stock === 0) return 'bg-rose-100 text-rose-800 border-rose-200';
     if (stock < 10) return 'bg-amber-100 text-amber-800 border-amber-200';
     return 'bg-emerald-100 text-emerald-800 border-emerald-200';
   };
 
-  useEffect(() => {
-    cargarDatosIniciales();
-  }, []);
 
   const minusStock = (productos) => {
     const num = productos.filter(p => p.stock > 0 && p.stock <= 5).length;
@@ -91,6 +93,70 @@ export default function DashBoard() {
   const handleActualizarDashboard = async () => {
     await cargarDatosIniciales();
   };
+const handleActivarProducto = async (productoId) => {
+  const result = await Swal.fire({
+    title: `¿Activar el producto?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, activar',
+    cancelButtonText: 'Cancelar'
+  });
+  if (result.isConfirmed) {
+    try {      
+      await activarProducto(productoId); 
+   await cargarProductos();
+
+     if (modalAbierto && tipoModalActual) {
+          actualizarProductosModal(tipoModalActual);
+        }
+      Swal.fire("Activado!", "El producto ha sido activado", "success");
+    } catch (error) {
+      console.log(error);
+      Swal.fire("Error", "Hubo un error al activar el producto", "error");
+    }
+  }
+}
+
+const handleEliminarProducto = async (productoId) => {
+  const result = await Swal.fire({
+    title: `¿Desactivar el producto?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, desactivar',
+    cancelButtonText: 'Cancelar'
+  });
+  if (result.isConfirmed) {
+    try {
+      await eliminarProducto(productoId); 
+      await cargarProductos();
+
+       if (modalAbierto && tipoModalActual) {
+          actualizarProductosModal(tipoModalActual);
+        }
+      Swal.fire('¡Desactivado!', 'El producto ha sido desactivado.', 'success');
+    } catch (error) {
+      console.error("Error deleting categories:", error);
+      Swal.fire('Error', 'No se pudo desactivar el producto', 'error');
+    }
+  }
+}
+
+    useEffect(() => {
+      cargarDatosIniciales();
+    }, []);
+    
+    useEffect(() => {
+      minusStock(productos); 
+      zeroStock(productos);
+    if (modalAbierto && tipoModalActual) {
+      actualizarProductosModal(tipoModalActual);
+    }
+  }, [productos]);
+
 
   return (
     <div className="min-h-screen w-full flex bg-gradient-to-br from-gray-50 to-gray-100">
@@ -125,7 +191,7 @@ export default function DashBoard() {
               icon={<LocalLibraryIcon className="text-white" />}
               trend="up"
               trendValue="12%"
-              onClick={() => {navi('/inventario')}}
+              onClick={() => { navi('/inventario') }}
             />
             <Card
               color="blue"
@@ -326,12 +392,13 @@ export default function DashBoard() {
           productos={productosModal}
           isOpen={modalAbierto}
           onClose={handleCerrarModal}
-          onEliminar={eliminarProducto}
+          onEliminar={handleEliminarProducto}
           onEditar={editarProducto}
           formatearPrecio={formatearPrecio}
           getColorStock={getColorStock}
           obtenerNombreCategoria={obtenerNombreCategoria}
           titulo={tituloModal}
+          onActivar={handleActivarProducto}
         />
       )}
     </div>

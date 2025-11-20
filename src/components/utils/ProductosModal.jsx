@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Close } from '@mui/icons-material';
 import VistaCards from './VistaCards';
 import { ProductoForm } from '../Forms/ProductoForms';
@@ -10,6 +10,7 @@ export default function ModalProductos({
   onEditar = () => { },
   onEliminar = () => { },
   onCrear = () => { },
+  onActivar = () => { },
   formatearPrecio = (precio) => `$${precio?.toFixed(2) || '0.00'}`,
   getColorStock = (stock) => {
     if (stock === 0) return 'bg-red-100 text-red-800 border-red-200';
@@ -22,9 +23,14 @@ export default function ModalProductos({
 
   const [productoSeleccionado, setProductoSeleccionado] = useState(null);
   const [formAbierto, setFormAbierto] = useState(false);
+  const [productosLocales, setProductosLocales] = useState([]);
 
+  useEffect(() => {
+    setProductosLocales(productos);
+  }, [productos]);
 
   if (!isOpen) return null;
+
   const handleCrearProducto = () => {
     setProductoSeleccionado(null);
     setFormAbierto(true);
@@ -34,12 +40,18 @@ export default function ModalProductos({
     setProductoSeleccionado(producto);
     setFormAbierto(true);
   };
+
   const handleCerrarForm = () => {
     setFormAbierto(false);
   };
-  const handleEliminarProducto = (id) => {
-    onEliminar(id);
+
+  const handleEliminarProducto = async (id) => {
+    await onEliminar(id);
   };
+
+  const handleActivarProducto = async (id) => {
+    await onActivar(id);
+  }
 
   const handleBackdropClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -58,13 +70,11 @@ export default function ModalProductos({
           <div>
             <h2 className="text-2xl font-bold text-slate-800">{titulo}</h2>
             <p className="text-slate-600 mt-1">
-              {productos.length} producto{productos.length !== 1 ? 's' : ''} encontrado{productos.length !== 1 ? 's' : ''}
+              {productosLocales.length} producto{productosLocales.length !== 1 ? 's' : ''} encontrado{productosLocales.length !== 1 ? 's' : ''}
             </p>
           </div>
 
           <div className="flex items-center gap-3">
-
-
             {/* Botón Cerrar */}
             <button
               onClick={onClose}
@@ -77,19 +87,19 @@ export default function ModalProductos({
 
         {/* Contenido del Modal */}
         <div className="flex-1 overflow-hidden">
-          {productos.length > 0 ? (
+          {productosLocales.length > 0 ? (
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
               <VistaCards
-                productos={productos}
+                productos={productosLocales}
                 formatearPrecio={formatearPrecio}
                 getColorStock={getColorStock}
                 obtenerNombreCategoria={obtenerNombreCategoria}
                 onEditar={handleEditarProducto}
                 onEliminar={handleEliminarProducto}
+                onActivar={handleActivarProducto}
               />
             </div>
           ) : (
-            // ← Aquí estaba el error: se usaban llaves {} en lugar de paréntesis ()
             <div className="flex flex-col items-center justify-center p-12 text-center">
               <div className="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mb-4">
                 <span className="text-4xl text-slate-400">📦</span>
@@ -117,10 +127,9 @@ export default function ModalProductos({
           producto={productoSeleccionado}
           onSave={async (datos) => {
             if (productoSeleccionado) {
-              await editarProducto(productoSeleccionado.id, datos);
+              await onEditar(productoSeleccionado.id, datos);
             }
             setFormAbierto(false);
-            cargarProductos();
           }}
           onCancel={handleCerrarForm}
         />

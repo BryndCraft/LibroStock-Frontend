@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { createCategoria, searchCategorias, updateCategoria, deleteCategoria } from "../apis/categorias.api";
+import { createCategoria, searchCategorias, updateCategoria, deleteCategoria,activateCategoria } from "../apis/categorias.api";
 
 const CategoriasContext = createContext(null);
 
@@ -18,7 +18,10 @@ export const CategoriasProvider = ({ children }) => {
             setLoading(false);
         }
     };
-
+    const activarCategoria = async (id) => {
+      await activateCategoria(id);
+      await cargarCategorias();
+    }
     const agregarCategoria = async (datos) => {
     await createCategoria(datos);
     await cargarCategorias();
@@ -42,7 +45,8 @@ export const CategoriasProvider = ({ children }) => {
         cargarCategorias,
         agregarCategoria,
         editarCategoria,
-        eliminarCategoria
+        eliminarCategoria, 
+        activarCategoria,
       }}
     >
       {children}

@@ -1,6 +1,6 @@
 export default function Card(
   { color = "green", 
-    cantidad = 4, 
+    cantidad = 0, 
     texto = "Total de productos", 
     icon = null, 
     onClick = null  

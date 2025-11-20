@@ -14,7 +14,7 @@ import {
   Description
 } from '@mui/icons-material';
 
-function MovimientosInventario() {
+export default function Movimientos() {
   const [movimientos, setMovimientos] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [filtroTipo, setFiltroTipo] = useState('TODOS');
@@ -290,5 +290,3 @@ function MovimientosInventario() {
     </div>
   );
 }
-
-export default MovimientosInventario;

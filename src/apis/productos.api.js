@@ -22,7 +22,7 @@ productosApi.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-export const activateProductos = (id) => {
+export const activateProducto = (id) => {
     return productosApi.post(`/activate/${id}/`);
 };
 

@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import DashBoard from "./pages/home/DashBoard";
 import Facturacion from "./pages/home/Facturacion";
-import Inventario from "./pages/home/Inventario";
+import Inventario from "./pages/home/Inventario/Inventario";
 import { PublicRoute } from "./components/Routes/PublicRoute";
 import { PrivateRoute } from "./components/Routes/PrivateRoute";  
 import { Public } from "@mui/icons-material";
@@ -35,7 +35,7 @@ function App() {
           <Route path="/inventario" element=
           {
             <PrivateRoute>
-              <Inventario/>
+              <Inventario></Inventario>
             </PrivateRoute>
           } />
           <Route path="/perfil" element=

@@ -35,6 +35,7 @@ export function ProveedorForm({ proveedor, onSave, onCancel }) {
       telefono: formData.telefono.trim() || null,
       correo: formData.correo.trim() || null,
       ruc: formData.ruc.trim() || null,
+      activo: formData.activo, 
       direccion: formData.direccion.trim() || null,
     };
 

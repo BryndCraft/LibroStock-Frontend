@@ -1,7 +1,6 @@
 // components/utils/ModalProductos.jsx
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import VistaCards from './VistaCards';
 import { ProductoVacioVentana } from './ProductosVacioVentana';
 import { ModalHeader } from './ModalHeader';
 import { ModalFooter } from './ModalFooter';
@@ -128,14 +127,7 @@ export default function ModalProductos({
                   initial="hidden"
                   animate="visible"
                 >
-                  <VistaCards
-                    productos={productos}
-                    formatearPrecio={formatearPrecio}
-                    getColorStock={getColorStock}
-                    obtenerNombreCategoria={obtenerNombreCategoria}
-                    onEditar={handleEditarProducto}
-                    onEliminar={handleEliminarProducto}
-                  />
+                 
                 </motion.div>
               ) : (
                 <ProductoVacioVentana

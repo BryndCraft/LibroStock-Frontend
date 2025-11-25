@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { Add, Search, FilterList, TableChart, Dashboard, Clear, Business } from "@mui/icons-material";
-import Sidebar from "../../components/utils/Sidebar";
-import VistaCardsProveedores from "../../components/utils/VistaCardsProveedores";
-import VistaTablaProveedores from "../../components/utils/VistaTablaProveedores";
-import { ProveedorForm } from "../../components/Forms/ProveedorForm";
-import CustomSelect from "../../components/utils/CustomSelect";
-import {createProveedor, searchProveedor, deleteProveedor, updateProveedor } from "../../apis/proveedores.api";
+import Sidebar from "../../../components/utils/Sidebar";
+import VistaCardsProveedores from "../../../components/utils/VistaCardsProveedores";
+import VistaTablaProveedores from "../../../components/utils/VistaTablaProveedores";
+import { ProveedorForm } from "../../../components/Forms/ProveedorForm";
+import CustomSelect from "../../../components/utils/CustomSelect";
+import {createProveedor, searchProveedor, deleteProveedor, updateProveedor } from "../../../apis/proveedores.api";
 
 import Swal from "sweetalert2";
 export default function Proveedores() {

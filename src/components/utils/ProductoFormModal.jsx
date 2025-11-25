@@ -1,5 +1,5 @@
 // components/utils/ProductoFormModal.jsx
-import { ProductoForm } from '../Forms/ProductoForms';
+import { ProductoForm } from '../../pages/home/Inventory/Forms/ProductoForms';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export function ProductoFormModal({ 

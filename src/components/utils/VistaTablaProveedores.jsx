@@ -1,6 +1,10 @@
 import { Edit, Delete, Business, Person, Phone, Email, LocationOn, AssignmentInd } from '@mui/icons-material';
+import { useProveedor } from '../../context/ProveedorContext';
 
-export default function VistaTablaProveedores({ proveedores, onEditar, onEliminar }) {
+export default function VistaTablaProveedores({  onEditar, onEliminar }) {
+
+  const{proveedores} = useProveedor();
+
   const getEstadoColor = (activo) => {
     return activo 
       ? 'bg-emerald-100/80 text-emerald-700 border-emerald-200/60' 

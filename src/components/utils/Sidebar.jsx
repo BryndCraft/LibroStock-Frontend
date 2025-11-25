@@ -36,6 +36,7 @@ export default function Sidebar() {
     { name: "Inventario", path: "/inventario", icon: <InventoryIcon className="text-xl" /> },
     { name: "Proveedores", path: "/proveedores", icon: <SupervisedUserCircleIcon className="text-xl" /> },
     { name: "Compras", path: "/compras", icon: <LibraryAdd className="text-xl" /> },
+    { name: "Prueba", path: "/prueba", icon: <LibraryAdd className="text-xl" />}
   ];
 
   return (

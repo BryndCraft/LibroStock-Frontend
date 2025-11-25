@@ -1,17 +1,44 @@
-import { Inventory2, Category, LocalOffer, Edit, ToggleOn, ToggleOff} from "@mui/icons-material";
+import {
+  Inventory2,
+  Category,
+  LocalOffer,
+  Edit,
+  ToggleOn,
+  ToggleOff,
+} from "@mui/icons-material";
+import { useProductos } from "../../../../context/ProductosContext";
+import { useInventario } from "../hooks/useInventario";
 
-export function VistaCards({ productos, formatearPrecio, getColorStock, obtenerNombreCategoria, onEditar, onEliminar, onActivar }) {
+
+export function ProductoCard({
+  mostrar_inactivos,
+  onEditar,
+}) {
+
+  const {productos} = useProductos();
+  const {handleActivarProducto, handleEliminarProducto, handleEditarProducto,  obtenerNombreCategoria, getColorStock,formatearPrecio}= useInventario();
+
+   const productosFiltrados = mostrar_inactivos
+    ? productos.filter(p => !p.activo) // solo inactivos
+    : productos; // todos los productos si mostrar_inactivos es false
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
-      {productos.map((producto) => (
-        <div key={producto.id} className="group bg-white/70 backdrop-blur-lg rounded-3xl shadow-sm hover:shadow-2xl border border-slate-200/40 transition-all duration-500 hover:-translate-y-2 hover:border-slate-300/60 flex flex-col min-h-[280px]">
+      {productosFiltrados.map((producto) => (
+        <div
+          key={producto.id}
+          className="group bg-white/70 backdrop-blur-lg rounded-3xl shadow-sm hover:shadow-2xl border border-slate-200/40 transition-all duration-500 hover:-translate-y-2 hover:border-slate-300/60 flex flex-col min-h-[280px]"
+        >
           <div className="p-5 flex-1 flex flex-col">
             {/* Header con icono y stock */}
             <div className="flex items-start justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <Inventory2 className="text-white text-xl" />
-              </div>            
-              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xl font-medium border backdrop-blur-sm ${getColorStock(producto.stock)}`}>
+              </div>
+              <span
+                className={`inline-flex items-center px-2 py-1 rounded-full text-xl font-medium border backdrop-blur-sm ${getColorStock(
+                  producto.stock
+                )}`}
+              >
                 {producto.stock} unidades
               </span>
             </div>
@@ -69,23 +96,21 @@ export function VistaCards({ productos, formatearPrecio, getColorStock, obtenerN
                 Editar
               </button>
               {producto.activo ? (
-                            <button
-                onClick={() => onEliminar(producto.id)}
-                className="flex-1 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
-              >
-                <ToggleOff className="w-3 h-3" />
-                Desactivar
-              </button>
-  
+                <button
+                  onClick={() => handleEliminarProducto(producto.id)}
+                  className="flex-1 py-2 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
+                >
+                  <ToggleOff className="w-3 h-3" />
+                  Desactivar
+                </button>
               ) : (
                 <button
-                onClick={() => onActivar(producto.id)}
-                className="flex-1 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
-              >
-                <ToggleOn className="w-3 h-3" />
-                Activar
-              </button>
-  
+                  onClick={() => handleActivarProducto(producto.id)}
+                  className="flex-1 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-rose-400/30 flex items-center justify-center gap-1"
+                >
+                  <ToggleOn className="w-3 h-3" />
+                  Activar
+                </button>
               )}
             </div>
           </div>

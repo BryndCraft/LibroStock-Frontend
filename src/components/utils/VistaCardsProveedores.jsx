@@ -1,5 +1,7 @@
 import { Edit, Delete, Business, Person, Phone, Email, LocationOn, AssignmentInd } from '@mui/icons-material';
 
+import { useProveedor } from '../../context/ProveedorContext';
+
 export default function VistaCardsProveedores({ proveedores, onEditar, onEliminar }) {
   const getEstadoColor = (activo) => {
     return activo 

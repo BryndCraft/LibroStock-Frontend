@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Save, Cancel, Category, Description, Archive } from "@mui/icons-material";
 import Swal from "sweetalert2";
+
 export function CategoriaForm({ categoria, onSave, onCancel }) {
+  
   const [formData, setFormData] = useState({
     nombre: categoria?.nombre || "",
     descripcion: categoria?.descripcion || "",

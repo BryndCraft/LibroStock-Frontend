@@ -10,15 +10,15 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import WarningIcon from "@mui/icons-material/Warning";
 import SellIcon from "@mui/icons-material/Sell";
 import SchoolIcon from "@mui/icons-material/School";
-import Sidebar from "../../components/utils/Sidebar";
-import Card from "../../components/utils/Card";
-import { useUser } from "../../context/UserContext";
-import { searchProductos, updateProducto, deleteProducto } from "../../apis/productos.api";
+import Sidebar from "../../../components/utils/Sidebar";
+import Card from "../../../components/utils/Card";
+import { useUser } from "../../../context/UserContext";
+import { searchProductos, updateProducto, deleteProducto } from "../../../apis/productos.api";
 import { useState, useEffect } from "react";
 import CircularProgress from '@mui/material/CircularProgress';
-import ModalProductos from "../../components/utils/ProductosModal";
-import { useProductos } from "../../context/ProductosContext";
-import { useCategorias } from "../../context/CategoriasContext";
+import ModalProductos from "../../../components/utils/ProductosModal";
+import { useProductos } from "../../../context/ProductosContext";
+import { useCategorias } from "../../../context/CategoriasContext";
 import { useNavigate } from "react-router-dom";
 
 function sleep(ms) {

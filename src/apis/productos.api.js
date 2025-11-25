@@ -26,6 +26,8 @@ export const activateProductos = (id) => {
     return productosApi.post(`/activate/${id}/`);
 };
 
+
+
 export const searchProductos = (search, page) => {
     return productosApi.get(`/search/${page}/`, {search});
 };

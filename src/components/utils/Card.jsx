@@ -11,6 +11,7 @@ export default function Card(
     blue: "from-blue-500 to-blue-600",
     red: "from-red-500 to-red-600",
     yellow: "from-amber-500 to-amber-600",
+    gray: "from-gray-500 to-gray-600"
   };
 
   const gradient = gradients[color] || gradients.green;

@@ -1,6 +1,12 @@
 import { Inventory2, Category, LocalOffer,Edit, ToggleOn, ToggleOff } from "@mui/icons-material";
+import { useCategorias } from "../../../../context/CategoriasContext";
+import { useInventario } from "../hooks/useInventario";
 
-export function VistaCategorias({ categorias, onEditar, onEliminar }) {
+export function CategoriaCard() {
+
+  const {categorias} = useCategorias();
+  const {handleEliminarCategoria, handleEditarCategoria, handleActivarCategoria, mostrarFormProducto} = useInventario();
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
       {categorias.map((categoria) => (
@@ -33,17 +39,28 @@ export function VistaCategorias({ categorias, onEditar, onEliminar }) {
             {/* Botones de acción */}
             <div className="flex gap-3 pt-4 border-t border-slate-200/40">
               <button
-                onClick={() => onEditar(categoria)}
+                onClick={() => handleEditarCategoria(categoria)}
                 className="flex-1 py-3 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm border border-blue-400/30"
               >
                 Editar
               </button>
-              <button
-                onClick={() => onEliminar(categoria.id)}
+              
+              {categoria.activo ? (
+                <button
+                onClick={() => handleEliminarCategoria(categoria.id)}
                 className="flex-1 py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm border border-rose-400/30"
               >
-                Eliminar
+                Desactivar
               </button>
+              ):
+              <button
+                onClick={() => handleActivarCategoria(categoria.id)}
+                className="flex-1 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm border border-green-400/30"
+              >
+                Activar
+              </button>
+              }
+              
             </div>
           </div>
         </div>

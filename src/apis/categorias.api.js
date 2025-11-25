@@ -36,6 +36,10 @@ export const updateCategoria = (id, categoria) => {
 }
 
 export const deleteCategoria = (id) => {
-    return categoriasApi.post(`/delete/${id}`);
+    return categoriasApi.post(`/delete/${id}/`);
+}
+
+export const activateCategoria = (id) =>{
+  return categoriasApi.post(`/activate/${id}/`)
 }
 

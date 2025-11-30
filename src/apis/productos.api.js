@@ -40,6 +40,12 @@ export const updateProducto = (id, producto) => {
     return productosApi.put(`/update/${id}/`, producto);  
 }
 
+export const searchByProveedor = (proveedor_id, search = '', page = 1) => {
+    return productosApi.get(`/productos_por_proveedor/${page}/`, {
+        params: { proveedor_id, search }
+    });
+};
+
 export const deleteProducto = (id) => {
     return productosApi.post(`/delete/${id}/`);
 }

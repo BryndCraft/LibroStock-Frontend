@@ -1,47 +1,54 @@
 import { createContext, useContext, useState, useEffect } from "react";
-import { createCategoria, searchCategorias, updateCategoria, deleteCategoria, activateCategoria} from "../apis/categorias.api";
+import {
+  createCategoria,
+  searchCategorias,
+  updateCategoria,
+  deleteCategoria,
+  activateCategoria,
+} from "../apis/categorias.api";
 
 const CategoriasContext = createContext(null);
 
 export const CategoriasProvider = ({ children }) => {
-    const [categorias, setCategorias] = useState([]);
-    const [loading, setLoading] = useState(false);
+  const [categorias, setCategorias] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-    const cargarCategorias = async () => {
-        try {
-            setLoading(true);
-            const response = await searchCategorias("", 1);
-            setCategorias(response.data?.Categorias?.results || []);
-            setLoading(false);
-        } catch (error) {
-            console.error("Error cargando categorías:", error);
-            setLoading(false);
-        }
-    };
-
-    const agregarCategoria = async (datos) => {
-    await createCategoria(datos);
-    await cargarCategorias();
+  const cargarCategorias = async () => {
+    try {
+      setLoading(true);
+      const response = await searchCategorias("", 1);
+      setCategorias(response.data?.Categorias?.results || []);
+      setLoading(false);
+    } catch (error) {
+      console.error("Error cargando categorías:", error);
+      setLoading(false);
+    }
   };
-    const editarCategoria = async (id, datos) => {
-    await updateCategoria(id, datos);
+
+  const agregarCategoria = async (datos) => {
+    const response = await createCategoria(datos);
     await cargarCategorias();
+    return response;
+  };
+  const editarCategoria = async (id, datos) => {
+    const response = await updateCategoria(id, datos);
+    await cargarCategorias();
+    return response;
   };
   const eliminarCategoria = async (id) => {
     await deleteCategoria(id);
     await cargarCategorias();
   };
 
-  const activarCategoria = async (id) =>{
+  const activarCategoria = async (id) => {
     const response = await activateCategoria(id);
     await cargarCategorias();
     return response;
-
-  }
-    useEffect(() => {
+  };
+  useEffect(() => {
     cargarCategorias();
   }, []);
- return (
+  return (
     <CategoriasContext.Provider
       value={{
         categorias,
@@ -50,14 +57,13 @@ export const CategoriasProvider = ({ children }) => {
         agregarCategoria,
         editarCategoria,
         eliminarCategoria,
-        activarCategoria
+        activarCategoria,
       }}
     >
       {children}
     </CategoriasContext.Provider>
-  );    
+  );
 };
-
 
 export const useCategorias = () => {
   return useContext(CategoriasContext);

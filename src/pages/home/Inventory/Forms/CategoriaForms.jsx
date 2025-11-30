@@ -1,32 +1,56 @@
 import { useState } from "react";
-import { Save, Cancel, Category, Description, Archive } from "@mui/icons-material";
+import {
+  Save,
+  Cancel,
+  Category,
+  Description,
+  Archive,
+} from "@mui/icons-material";
+import { useEffect } from "react";
 import Swal from "sweetalert2";
+import { useInventario } from "../hooks/useInventario";
 
-export function CategoriaForm({ categoria, onSave, onCancel }) {
-  
+export function CategoriaForm({ categoria, setMostrarCategoriaForm }) {
+  const { handleGuardarCategoria } = useInventario();
+
   const [formData, setFormData] = useState({
-    nombre: categoria?.nombre || "",
-    descripcion: categoria?.descripcion || "",
-    activo: categoria?.activo !== undefined ? categoria.activo : true
+    nombre: "",
+    descripcion: "",
+    activo: true,
   });
 
+  useEffect(() => {
+    if (categoria) {
+      setFormData({
+        nombre: categoria.nombre || "",
+        descripcion: categoria.descripcion || "",
+        activo: categoria.activo !== undefined ? categoria.activo : true,
+      });
+    } else {
+      // Resetear el formulario cuando no hay categoría (creación nueva)
+      setFormData({
+        nombre: "",
+        descripcion: "",
+        activo: true,
+      });
+    }
+  }, [categoria]);
 
+  
   const handleSubmit = (e) => {
     e.preventDefault();
+    const datosEnviar = {
+      ...formData,
+    };
 
-    if (!formData.nombre.trim()) {
-      Swal.fire('Advertencia','El nombre de la categoría es requerido', 'warning');
-      return;
-    }
-
-    onSave(formData);
+    handleGuardarCategoria(datosEnviar, categoria, setMostrarCategoriaForm);
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -39,10 +63,12 @@ export function CategoriaForm({ categoria, onSave, onCancel }) {
             <div>
               <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                 <Category />
-                {categoria ? 'Editar Categoría' : 'Nueva Categoría'}
+                {categoria ? "Editar Categoría" : "Nueva Categoría"}
               </h2>
               <p className="text-gray-500">
-                {categoria ? 'Modificar información de la categoría' : 'Complete la información de la nueva categoría'}
+                {categoria
+                  ? "Modificar información de la categoría"
+                  : "Complete la información de la nueva categoría"}
               </p>
             </div>
           </div>
@@ -87,14 +113,13 @@ export function CategoriaForm({ categoria, onSave, onCancel }) {
                 />
               </div>
             </div>
-
           </div>
 
           {/* Botones */}
           <div className="flex justify-end gap-3 pt-4 border-t">
             <button
               type="button"
-              onClick={onCancel}
+              onClick={() => setMostrarCategoriaForm(false)}
               className="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 flex items-center gap-2 transition-all duration-300 ease-in-out transform hover:scale-105"
             >
               <Cancel />
@@ -105,7 +130,7 @@ export function CategoriaForm({ categoria, onSave, onCancel }) {
               className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 flex items-center gap-2 transition-all duration-300 ease-in-out transform hover:scale-105"
             >
               <Save />
-              {categoria ? 'Actualizar' : 'Guardar'} Categoría
+              {categoria ? "Actualizar" : "Guardar"} Categoría
             </button>
           </div>
         </form>

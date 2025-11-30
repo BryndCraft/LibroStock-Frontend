@@ -1,15 +1,12 @@
-import { Edit, Delete, Business, Person, Phone, Email, LocationOn, AssignmentInd } from '@mui/icons-material';
-import { useProveedor } from '../../context/ProveedorContext';
+import { Edit, Delete, Business, Person, Phone, Email, LocationOn, AssignmentInd, CheckBox, Check } from '@mui/icons-material';
+import { useProveedor } from '../../../../context/ProveedorContext';
 
-export default function VistaTablaProveedores({  onEditar, onEliminar }) {
 
-  const{proveedores} = useProveedor();
+export default function VistaTablaProveedores({abrirEditarProveedor, proveedoresInactivos, proveedoresFiltrados}) {
 
-  const getEstadoColor = (activo) => {
-    return activo 
-      ? 'bg-emerald-100/80 text-emerald-700 border-emerald-200/60' 
-      : 'bg-rose-100/80 text-rose-700 border-rose-200/60';
-  };
+  const{proveedores, eliminarProveedor, activarProveedor} = useProveedor();
+
+
 
   return (
     <div className="overflow-x-auto rounded-2xl border border-slate-200/40">
@@ -25,7 +22,7 @@ export default function VistaTablaProveedores({  onEditar, onEliminar }) {
           </tr>
         </thead>
         <tbody>
-          {proveedores.map((proveedor) => (
+          {proveedoresFiltrados.filter((proveedor) => proveedoresInactivos ? proveedor.activo === false : proveedor.activo === true).map((proveedor) => (
             <tr key={proveedor.id} className="border-b border-slate-200/40 hover:bg-orange-50/20 transition-colors duration-200 group">
               <td className="p-6">
                 <div className="flex items-center gap-4">
@@ -77,26 +74,38 @@ export default function VistaTablaProveedores({  onEditar, onEliminar }) {
                 )}
               </td>
               <td className="p-6">
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-sm ${getEstadoColor(proveedor.activo)}`}>
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-sm ">
                   {proveedor.activo ? 'Activo' : 'Inactivo'}
                 </span>
               </td>
               <td className="p-6">
                 <div className="flex gap-2">
                   <button
-                    onClick={() => onEditar(proveedor)}
                     className="p-3 text-blue-600 hover:bg-blue-50/50 rounded-xl transition-all duration-200 hover:scale-105 border border-blue-200/60 backdrop-blur-sm hover:border-blue-300"
                     title="Editar proveedor"
+                    onClick={() => abrirEditarProveedor((proveedor))}
                   >
                     <Edit className="w-5 h-5" />
                   </button>
-                  <button
-                    onClick={() => onEliminar(proveedor.id)}
+                  
+                  {proveedor.activo ? (<button
                     className="p-3 text-rose-600 hover:bg-rose-50/50 rounded-xl transition-all duration-200 hover:scale-105 border border-rose-200/60 backdrop-blur-sm hover:border-rose-300"
                     title="Eliminar proveedor"
+                    onClick={() => eliminarProveedor(proveedor.id)}
                   >
+                    
                     <Delete className="w-5 h-5" />
+                  </button>):(
+                    <button
+                    className="p-3 text-white bg-green-500 rounded-xl transition-all duration-200 hover:scale-105 border border-green-300 backdrop-blur-sm hover:border-rose-300"
+                    title="Activar Producto"
+                    onClick={() => activarProveedor(proveedor.id)}
+                  >
+                    
+                    <Check/>
                   </button>
+                  )}
+                  
                 </div>
               </td>
             </tr>

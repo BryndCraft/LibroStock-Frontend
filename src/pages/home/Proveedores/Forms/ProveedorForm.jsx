@@ -1,58 +1,74 @@
-import { useState } from "react";
-import { Save, Cancel, Business, Person, Phone, Email, LocationOn, AssignmentInd } from "@mui/icons-material";
+import { useEffect, useState } from "react";
+import {
+  Save,
+  Cancel,
+  Business,
+  Person,
+  Phone,
+  Email,
+  LocationOn,
+  AssignmentInd,
+} from "@mui/icons-material";
 import Swal from "sweetalert2";
-export function ProveedorForm({ proveedor, onSave, onCancel }) {
+import { useProveedor } from "../../../../context/ProveedorContext";
+export function ProveedorForm({ proveedorEditando, setModalFormProveedor }) {
+  const { agregarProveedor, editarProveedor } = useProveedor();
+
   const [formData, setFormData] = useState({
-    empresa: proveedor?.empresa || "",
-    nombre_contacto: proveedor?.nombre_contacto || "",
-    telefono: proveedor?.telefono || "",
-    correo: proveedor?.correo || "",
-    ruc: proveedor?.ruc || "",
-    direccion: proveedor?.direccion || "",
-    activo: proveedor?.activo !== undefined ? proveedor.activo : true
+    empresa: "",
+    nombre_contacto: "",
+    telefono: "",
+    correo: "",
+    ruc: "",
+    direccion: "",
+    activo:
+      proveedorEditando?.activo !== undefined ? proveedorEditando.activo : true,
   });
+
+  useEffect(() => {
+    setFormData((prev) => {
+      if (proveedorEditando) {
+        return {
+          ...prev,
+          empresa: proveedorEditando?.empresa || "",
+          nombre_contacto: proveedorEditando?.nombre_contacto || "",
+          telefono: proveedorEditando?.telefono || "",
+          correo: proveedorEditando?.correo || "",
+          ruc: proveedorEditando?.ruc || "",
+          direccion: proveedorEditando?.direccion || "",
+          activo: proveedorEditando?.activo,
+        };
+      } else {
+        return {
+          ...prev,
+        };
+      }
+    });
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    
-    if (!formData.empresa.trim()) {
-      Swal.fire('Advertencia','El nombre de la empresa es requerido', 'error');
-      return;
-    }
-
-    // Validación de email si se proporciona
-    if (formData.correo && !isValidEmail(formData.correo)) {
-     Swal.fire('Advertencia','Por favor ingrese un correo electrónico válido', 'warning');
-      return;
-    }
-
     // Preparar datos para enviar
     const datosEnviar = {
       ...formData,
-      empresa: formData.empresa.trim(),
-      nombre_contacto: formData.nombre_contacto.trim() || null,
-      telefono: formData.telefono.trim() || null,
-      correo: formData.correo.trim() || null,
-      ruc: formData.ruc.trim() || null,
-      activo: formData.activo, 
-      direccion: formData.direccion.trim() || null,
     };
 
-    onSave(datosEnviar);
+    if (proveedorEditando) {
+      console.log(datosEnviar);
+      console.log(proveedorEditando.id)
+      editarProveedor(proveedorEditando.id, datosEnviar);
+    } else {
+      agregarProveedor(datosEnviar);
+    }
   };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
-  };
-
-  const isValidEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
   };
 
   return (
@@ -64,10 +80,14 @@ export function ProveedorForm({ proveedor, onSave, onCancel }) {
             <div>
               <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
                 <Business />
-                {proveedor ? 'Editar Proveedor' : 'Agregar Nuevo Proveedor'}
+                {proveedorEditando
+                  ? "Editar Proveedor"
+                  : "Agregar Nuevo Proveedor"}
               </h2>
               <p className="text-gray-500">
-                {proveedor ? 'Modificar información del proveedor' : 'Complete la información del nuevo proveedor'}
+                {proveedorEditando
+                  ? "Modificar información del proveedor"
+                  : "Complete la información del nuevo proveedor"}
               </p>
             </div>
           </div>
@@ -105,8 +125,8 @@ export function ProveedorForm({ proveedor, onSave, onCancel }) {
                 <input
                   type="text"
                   name="nombre_contacto"
-                  value={formData.nombre_contacto}
                   onChange={handleChange}
+                  value={formData.nombre_contacto}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Ej: Juan Pérez"
                 />
@@ -174,32 +194,13 @@ export function ProveedorForm({ proveedor, onSave, onCancel }) {
                 <LocationOn className="absolute left-3 top-3 text-gray-400" />
                 <textarea
                   name="direccion"
+                  rows="3"
                   value={formData.direccion}
                   onChange={handleChange}
-                  rows="3"
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                   placeholder="Dirección completa de la empresa..."
                 />
               </div>
-            </div>
-
-            {/* Estado Activo */}
-            <div className="md:col-span-2">
-              <label className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  name="activo"
-                  checked={formData.activo}
-                  onChange={handleChange}
-                  className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-                />
-                <span className="text-sm font-medium text-gray-700">
-                  Proveedor activo
-                </span>
-              </label>
-              <p className="text-sm text-gray-500 mt-1">
-                Los proveedores inactivos no estarán disponibles para seleccionar en nuevos productos.
-              </p>
             </div>
           </div>
 
@@ -207,7 +208,7 @@ export function ProveedorForm({ proveedor, onSave, onCancel }) {
           <div className="flex justify-end gap-3 pt-4 border-t">
             <button
               type="button"
-              onClick={onCancel}
+              onClick={() => setModalFormProveedor(false)}
               className="px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 flex items-center gap-2 transition-all duration-300 ease-in-out transform hover:scale-105"
             >
               <Cancel />
@@ -218,7 +219,7 @@ export function ProveedorForm({ proveedor, onSave, onCancel }) {
               className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 flex items-center gap-2 transition-all duration-300 ease-in-out transform hover:scale-105"
             >
               <Save />
-              {proveedor ? 'Actualizar' : 'Guardar'} Proveedor
+              {proveedorEditando ? "Actualizar" : "Guardar"} Proveedor
             </button>
           </div>
         </form>

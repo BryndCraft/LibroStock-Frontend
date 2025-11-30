@@ -23,27 +23,44 @@ import { Add } from "@mui/icons-material";
 export default function VistaProductos({ setVista }) {
   const [productosInactivos, setProductosInactivos] = useState(false);
   const {
-    mostrarFormProducto,
     categorias,
-    productoEditando,
     filtroCategoria,
     filtroStock,
     productosFiltrados,
     setFiltroCategoria,
     setFiltroStock,
-    handleGuardarProducto,
-    handleEditarProducto,
-    abrirFormProducto,
-    cerrarFormProducto,
     limpiarFiltros,
+    setFiltroBusqueda,
   } = useInventario();
 
   const [modoVisualizacion, setModoVisualizacion] = useState("cards");
+  const [mostrarProductoForm, setMostrarProductoForm] = useState(false);
+  const [productoEditando, setProductoEditando] = useState(null);
 
+  const handleNuevoProducto = () => {
+    setProductoEditando(null);
+    setMostrarProductoForm(true);
+  };
+
+  const handleEditarProducto = (producto) => {
+    setProductoEditando(producto);
+    setMostrarProductoForm(true);
+  };
+
+  const handleBusquedaChange = (e) => {
+    setFiltroBusqueda(e.target.value);
+  };
+
+
+const productosFiltradosFinal = productosFiltrados.filter((p) =>
+  productosInactivos ? !p.activo : p.activo
+);
+
+  
   return (
     <AnimatedContainer className="min-h-screen w-full ml-75">
       {/*Header*/}
-      <div className="w-full h-40 p-12  bg-green-500">
+      <div className="w-full h-40 p-12 bg-green-500">
         <div className="flex justify-between w-full">
           <div>
             <div className="font-bold text-white text-3xl">
@@ -63,8 +80,8 @@ export default function VistaProductos({ setVista }) {
             </button>
 
             <button
-              className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-2xl hover:from-yellow-600 hover:to-yelloww-700 transition-all duration-300 flex items-center gap-3 font-semibold border border-yellow-200/30 cursor-pointer"
-              onClick={abrirFormProducto}
+              className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-2xl hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 flex items-center gap-3 font-semibold border border-yellow-200/30 cursor-pointer"
+              onClick={handleNuevoProducto}
             >
               <Add className="text-lg" />
               <span>Añadir Producto</span>
@@ -76,16 +93,17 @@ export default function VistaProductos({ setVista }) {
       {/* Barra de Busqueda y de Categorias */}
       <div className="rounded-tl-3xl ml-5 relative -my-5 bg-white p-10">
         <div className="bg-white/50 border h-30 border-slate-200/40 rounded-2xl p-3 shadow-sm flex items-center gap-3 mb-10">
-          <div className="bg-white/50 border  border-slate-200/40 rounded-2xl p-3 shadow-sm flex items-center gap-3 w-[30%]">
+          <div className="bg-white/50 border border-slate-200/40 rounded-2xl p-3 shadow-sm flex items-center gap-3 w-[30%]">
             <Search className="text-slate-400" />
             <input
               type="text"
               className="w-full bg-transparent outline-none text-slate-800 placeholder-slate-400"
               placeholder="Realizar una Búsqueda por Nombre o Categoria"
+              onChange={handleBusquedaChange}
             />
           </div>
-          {/*Filtro de Estado de Categoria*/}
 
+          {/*Filtro de Categoria*/}
           <CustomSelect
             label="Categorías"
             options={[
@@ -100,10 +118,12 @@ export default function VistaProductos({ setVista }) {
             onChange={setFiltroCategoria}
             required={false}
           />
+
           {/*Filtro de Estado de Stock*/}
           <CustomSelect
             label="Estado de stock"
             options={[
+              { value: "", label: "Todos" },
               { value: "con-stock", label: "Con stock" },
               { value: "sin-stock", label: "Sin stock" },
               { value: "stock-bajo", label: "Stock bajo" },
@@ -114,6 +134,7 @@ export default function VistaProductos({ setVista }) {
             width={200}
             required={false}
           />
+
           {/*Boton para quitar los filtros*/}
           <AnimatedButton
             onClick={limpiarFiltros}
@@ -125,7 +146,7 @@ export default function VistaProductos({ setVista }) {
             Quitar Filtros
           </AnimatedButton>
 
-          {/* Botón Tabla */}
+          {/* Botones de Vista */}
           <div className="flex gap-3">
             <AnimatedButton
               onClick={() => setModoVisualizacion("tabla")}
@@ -141,7 +162,6 @@ export default function VistaProductos({ setVista }) {
               Tabla
             </AnimatedButton>
 
-            {/* Botón Cards */}
             <AnimatedButton
               onClick={() => setModoVisualizacion("cards")}
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border transition-all cursor-pointer ${
@@ -158,15 +178,13 @@ export default function VistaProductos({ setVista }) {
           </div>
         </div>
 
-        <div className=" mb-5 flex justify-between">
+        <div className="mb-5 flex justify-between">
           <div className="font-bold text-3xl">
             Número de Productos{" "}
             <span className="text-blue-400">
-              {
-                productosInactivos
-                  ? productosFiltrados.filter((p) => !p.activo).length // solo inactivos
-                  : productosFiltrados.filter((p) => p.activo).length // solo activos
-              }
+              {productosInactivos
+                ? productosFiltrados.filter((p) => !p.activo).length
+                : productosFiltrados.filter((p) => p.activo).length}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -189,22 +207,29 @@ export default function VistaProductos({ setVista }) {
         <div className="flex-1 bg-white/50 border border-slate-200/40 rounded-2xl p-5 shadow-sm overflow-hidden">
           <div className="max-h-[50vh] overflow-y-auto">
             {modoVisualizacion === "cards" ? (
-              <ProductoCard mostrar_inactivos={productosInactivos} onEditar={handleEditarProducto} />
+              <ProductoCard 
+                mostrar_inactivos={productosInactivos} 
+                handleEditarProducto={handleEditarProducto} 
+                productosFiltrados={productosFiltradosFinal}
+              />
             ) : (
-              <VistaTabla mostrar_inactivos={productosInactivos} />
+              <VistaTabla 
+                mostrar_inactivos={productosInactivos} 
+                handleEditarProducto={handleEditarProducto}
+                productosFiltrados={productosFiltradosFinal}
+              />
             )}
           </div>
         </div>
       </div>
 
-      {/*Modales*/}
+      {/*Modal de Producto*/}
       <AnimatePresence>
-        {mostrarFormProducto && (
+        {mostrarProductoForm && (
           <div className="fixed inset-0 w-full bg-black/70 z-60">
             <ProductoForm
-              producto={productoEditando}
-              onSave={handleGuardarProducto}
-              onCancel={cerrarFormProducto}
+              setMostrarProductoForm={setMostrarProductoForm}
+              productoEditando={productoEditando}
             />
           </div>
         )}

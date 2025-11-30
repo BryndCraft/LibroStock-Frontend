@@ -2,7 +2,7 @@ import { useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import DashBoard from "./pages/home/MainPanel/DashBoard";
-import Facturacion from "./pages/home/Facturacion";
+import Facturacion from "./pages/home/Facturacion/Facturacion";
 import Inventario from "./pages/home/Inventory/Inventario";
 import { PublicRoute } from "./components/Routes/PublicRoute";
 import { PrivateRoute } from "./components/Routes/PrivateRoute";  
@@ -11,6 +11,8 @@ import Perfil from "./pages/home/Perfil";
 import Panel from "./pages/home/MainPanel/Panel";
 import Proveedores from "./pages/home/Proveedores/Proveedores";
 import Compras from "./pages/home/Compra/Compras";
+import Kardex from "./pages/home/Kardex/Kardex";
+
 function App() {
   return (
     <>
@@ -58,6 +60,12 @@ function App() {
           <Route path="/prueba" element={
             <PrivateRoute>
               <Panel/>
+            </PrivateRoute>
+          }/>
+
+          <Route path="/kardex" element={
+            <PrivateRoute>
+              <Kardex/>
             </PrivateRoute>
           }/>
         </Routes>

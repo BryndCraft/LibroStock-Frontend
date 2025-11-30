@@ -36,11 +36,12 @@ export default function Sidebar() {
     { name: "Inventario", path: "/inventario", icon: <InventoryIcon className="text-xl" /> },
     { name: "Proveedores", path: "/proveedores", icon: <SupervisedUserCircleIcon className="text-xl" /> },
     { name: "Compras", path: "/compras", icon: <LibraryAdd className="text-xl" /> },
-    { name: "Prueba", path: "/prueba", icon: <LibraryAdd className="text-xl" />}
+    { name: "Prueba", path: "/prueba", icon: <LibraryAdd className="text-xl" />},
+    { name: "Kardex", path: "/kardex", icon: <LibraryAdd className="text-xl" />}
   ];
 
   return (
-    <div className="w-80 h-full bg-gradient-to-b from-slate-800 to-slate-900 flex flex-col absolute shadow-xl rounded-r-3xl font-poppins z-30">
+    <div className="w-80 h-full bg-gradient-to-b from-slate-800 to-slate-900 flex flex-col absolute shadow-xl rounded-r-3xl font-poppins z-30 overflow-y-auto">
       
       {/* Header */}
       <div className="w-full py-8 flex flex-col items-center border-b border-slate-600 bg-slate-700/50 rounded-tr-3xl">

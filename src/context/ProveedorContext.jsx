@@ -1,26 +1,25 @@
+// context/ProveedorContext.js
 import { createContext, useContext, useState, useEffect } from "react";
+import Swal from "sweetalert2";
 import {
   searchProveedor,
   createProveedor,
   updateProveedor,
   deleteProveedor,
+  activateProveedor
 } from "../apis/proveedores.api";
 
-// 1️⃣ Crear el contexto
 const ProveedorContext = createContext();
 
-// 2️⃣ Hook para consumir el contexto
-export const useProveedor = () => useContext(ProveedorContext);
-
-// 3️⃣ Provider
 export const ProveedorProvider = ({ children }) => {
   const [proveedores, setProveedores] = useState([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [filtroEstado, setFiltroEstado] = useState("");
 
-  // 4️⃣ Función para cargar proveedores desde la API
+  // Cargar proveedores
   const fetchProveedores = async (searchTerm = search, pageNumber = page) => {
     setLoading(true);
     try {
@@ -29,65 +28,131 @@ export const ProveedorProvider = ({ children }) => {
       setTotal(response.data?.Proveedores?.total || 0);
     } catch (error) {
       console.error("Error cargando proveedores:", error);
+      Swal.fire("Error", "Error al cargar los proveedores", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  // 5️⃣ Crear proveedor
+  // Filtrar proveedores
+  const proveedoresFiltrados = proveedores.filter((proveedor) => {
+    const coincideBusqueda =
+      proveedor.empresa.toLowerCase().includes(search.toLowerCase()) ||
+      proveedor.nombre_contacto?.toLowerCase().includes(search.toLowerCase()) ||
+      proveedor.ruc?.includes(search) ||
+      proveedor.correo?.toLowerCase().includes(search.toLowerCase());
+
+    const coincideEstado =
+      !filtroEstado ||
+      (filtroEstado === "activos" && proveedor.activo) ||
+      (filtroEstado === "inactivos" && !proveedor.activo);
+
+    return coincideBusqueda && coincideEstado;
+  });
+
+  // Crear proveedor
   const agregarProveedor = async (data) => {
-    const res = await createProveedor(data);
-    await fetchProveedores(); // recargar lista
-    return res.data;
+    try {
+      const res = await createProveedor(data);
+      await fetchProveedores();
+      Swal.fire("Éxito", "Proveedor creado correctamente", "success");
+      return res.data;
+    } catch (error) {
+      console.error("Error creando proveedor:", error);
+      Swal.fire("Error", "Error al crear el proveedor", "error");
+      throw error;
+    }
   };
 
-  // 6️⃣ Actualizar proveedor
+  // Actualizar proveedor
   const editarProveedor = async (id, data) => {
-    const res = await updateProveedor(id, data);
-    await fetchProveedores();
-    return res.data;
+    try {
+      const res = await updateProveedor(id, data);
+      await fetchProveedores();
+      Swal.fire("Éxito", "Proveedor actualizado correctamente", "success");
+      return res.data;
+    } catch (error) {
+      console.error("Error actualizando proveedor:", error);
+      Swal.fire("Error", "Error al actualizar el proveedor", "error");
+      throw error;
+    }
   };
 
-  // 7️⃣ Eliminar proveedor (soft delete)
+  // Eliminar proveedor
   const eliminarProveedor = async (id) => {
-    const res = await deleteProveedor(id);
-    await fetchProveedores();
-    return res.data;
-  };
-
-  // 8️⃣ Activar proveedor
-  const activarProveedor = async (id) => {
-    const res = await fetch(`/api/proveedores/activate/${id}`, {
-      method: "POST",
+    const result = await Swal.fire({
+      title: "¿Estás seguro?",
+      text: "¿Deseas eliminar este proveedor?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
     });
-    await fetchProveedores();
-    return res.json();
+
+    if (result.isConfirmed) {
+      try {
+        const res = await deleteProveedor(id);
+        await fetchProveedores();
+        Swal.fire("Eliminado", "Proveedor eliminado correctamente", "success");
+        return res.data;
+      } catch (error) {
+        console.error("Error eliminando proveedor:", error);
+        Swal.fire("Error", "Error al eliminar el proveedor", "error");
+        throw error;
+      }
+    }
   };
 
-  // 9️⃣ useEffect para cargar proveedores al montar
+  // Activar proveedor
+  const activarProveedor = async (id) => {
+    try {
+      const res = await activateProveedor(id);
+      await fetchProveedores();
+      Swal.fire("Éxito", "Proveedor activado correctamente", "success");
+      return res;
+    } catch (error) {
+      console.error("Error activando proveedor:", error);
+      Swal.fire("Error", "Error al activar el proveedor", "error");
+      throw error;
+    }
+  };
+
+  // Limpiar filtros
+  const limpiarFiltros = () => {
+    setSearch("");
+    setFiltroEstado("");
+  };
+
   useEffect(() => {
     fetchProveedores();
   }, []);
 
-  // 1️⃣0️⃣ Context value
-  const value = {
-    proveedores,
-    total,
-    loading,
-    search,
-    setSearch,
-    page,
-    setPage,
-    fetchProveedores,
-    agregarProveedor,
-    editarProveedor,
-    eliminarProveedor,
-    activarProveedor,
-  };
-
   return (
-    <ProveedorContext.Provider value={value}>
+    <ProveedorContext.Provider
+      value={{
+        proveedores: proveedoresFiltrados,
+        total,
+        loading,
+        search,
+        setSearch,
+        filtroEstado,
+        setFiltroEstado,
+        page,
+        setPage,
+        fetchProveedores,
+        agregarProveedor,
+        editarProveedor,
+        eliminarProveedor,
+        activarProveedor,
+        limpiarFiltros,
+      }}
+    >
       {children}
     </ProveedorContext.Provider>
   );
 };
+
+// Hook para consumir el contexto fácilmente
+export const useProveedor = () => useContext(ProveedorContext);

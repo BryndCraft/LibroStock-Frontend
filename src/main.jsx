@@ -7,13 +7,23 @@ import { UserProvider } from "./context/UserContext.jsx";
 import { CategoriasProvider } from "./context/CategoriasContext.jsx";
 import { ProductosProvider } from "./context/ProductosContext.jsx";
 import { ProveedorProvider } from "./context/ProveedorContext.jsx";
+import { ComprasProvider } from "./context/ComprasContext.jsx";
+import { KardexProvider } from "./context/KardexContext.jsx";
+import { VentasProvider } from "./context/VentasContext.jsx";
+
 ReactDom.createRoot(document.getElementById("root")).render(
   <StrictMode>
     <UserProvider>
       <CategoriasProvider>
         <ProductosProvider>
           <ProveedorProvider>
-            <App />
+            <ComprasProvider>
+              <KardexProvider>
+                <VentasProvider>
+                  <App />
+                </VentasProvider>
+              </KardexProvider>
+            </ComprasProvider>
           </ProveedorProvider>
         </ProductosProvider>
       </CategoriasProvider>

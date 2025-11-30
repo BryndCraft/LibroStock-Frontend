@@ -9,18 +9,21 @@ import {
 import { useProductos } from "../../../../context/ProductosContext";
 import { useInventario } from "../hooks/useInventario";
 
-
 export function ProductoCard({
   mostrar_inactivos,
-  onEditar,
+  handleEditarProducto,
+  productosFiltrados
 }) {
+  const { productos } = useProductos();
+  const {
+    handleActivarProducto,
+    handleEliminarProducto,
+    obtenerNombreCategoria,
+    getColorStock,
+    formatearPrecio,
+  } = useInventario();
 
-  const {productos} = useProductos();
-  const {handleActivarProducto, handleEliminarProducto, handleEditarProducto,  obtenerNombreCategoria, getColorStock,formatearPrecio}= useInventario();
 
-   const productosFiltrados = mostrar_inactivos
-    ? productos.filter(p => !p.activo) // solo inactivos
-    : productos; // todos los productos si mostrar_inactivos es false
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
       {productosFiltrados.map((producto) => (
@@ -36,7 +39,7 @@ export function ProductoCard({
               </div>
               <span
                 className={`inline-flex items-center px-2 py-1 rounded-full text-xl font-medium border backdrop-blur-sm ${getColorStock(
-                  producto.stock
+                  producto
                 )}`}
               >
                 {producto.stock} unidades
@@ -71,7 +74,7 @@ export function ProductoCard({
                     <LocalOffer className="w-3 h-3 text-emerald-600" />
                   </div>
                   <span className="font-bold text-emerald-600 text-sm break-words min-w-0">
-                    {formatearPrecio(producto.precio)}
+                    {formatearPrecio(producto.precio_venta)}
                   </span>
                 </div>
               </div>
@@ -89,7 +92,7 @@ export function ProductoCard({
             {/* Botones */}
             <div className="flex gap-2 pt-4 mt-4 border-t border-slate-200/40">
               <button
-                onClick={() => onEditar(producto)}
+                onClick={() => handleEditarProducto(producto)}
                 className="flex-1 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-blue-400/30 flex items-center justify-center gap-1"
               >
                 <Edit className="w-3 h-3" />

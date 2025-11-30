@@ -6,29 +6,18 @@ import {
   updateCategoria,
   deleteCategoria,
 } from "../../../../apis/categorias.api";
-import {
-  searchProductos,
-  createProducto,
-  updateProducto,
-  deleteProducto,
-  activateProductos,
-} from "../../../../apis/productos.api";
+import { createProducto } from "../../../../apis/productos.api";
 import { useProductos } from "../../../../context/ProductosContext";
 import { useCategorias } from "../../../../context/CategoriasContext";
 
 export const useInventario = () => {
   // Estados
-  const [mostrarFormProducto, setMostrarFormProducto] = useState(false);
-  const [mostrarFormCategoria, setMostrarFormCategoria] = useState(false);
-  const [productoEditando, setProductoEditando] = useState(null);
-  const [categoriaEditando, setCategoriaEditando] = useState(null);
   const [filtroBusqueda, setFiltroBusqueda] = useState("");
   const [filtroCategoria, setFiltroCategoria] = useState("");
   const [filtroStock, setFiltroStock] = useState("");
 
   const {
     productos,
-    cargarProductos,
     agregarProducto,
     editarProducto,
     eliminarProducto,
@@ -37,17 +26,11 @@ export const useInventario = () => {
 
   const {
     categorias,
-    cargarCategorias,
-    agregarCategoria,
-    editarCategoria,
     eliminarCategoria,
     activarCategoria,
+    agregarCategoria,
+    editarCategoria,
   } = useCategorias();
-
-  const handleEditarProducto = (producto) => {
-    setProductoEditando(producto);
-    setMostrarFormProducto(true);
-  };
 
   const handleActivarProducto = async (productoId) => {
     const result = await Swal.fire({
@@ -98,6 +81,7 @@ export const useInventario = () => {
       }
     }
   };
+
   const handleEliminarProducto = async (productoId) => {
     const result = await Swal.fire({
       title: `¿Desactivar el producto?`,
@@ -124,20 +108,32 @@ export const useInventario = () => {
     }
   };
 
-  const handleGuardarProducto = async (datos) => {
+  const handleGuardarProducto = async (
+    datos,
+    productoEditando,
+    setMostrarFormProducto
+  ) => {
     try {
       if (productoEditando) {
+        console.log(datos)
         await editarProducto(productoEditando.id, datos);
+
+        Swal.fire({
+          icon: "success",
+          title: "¡Actualizado!",
+          text: "El producto ha sido actualizado correctamente",
+        });
       } else {
-        await createProducto(datos);
+        await agregarProducto(datos);
+        Swal.fire({
+          icon: "success",
+          title: "¡Creado!",
+          text: "El producto ha sido creado correctamente",
+        });
       }
       setMostrarFormProducto(false);
-      setProductoEditando(null);
-      cargarProductos();
     } catch (error) {
       console.error("Error guardando producto:", error);
-
-      // Capturamos el mensaje que viene del backend
       const mensajeBackend = error.response?.data?.error || "";
 
       if (mensajeBackend.includes("nombre o código de barras ya existe")) {
@@ -154,12 +150,6 @@ export const useInventario = () => {
         });
       }
     }
-  };
-
-  // Handlers de Categorías
-  const handleEditarCategoria = (categoria) => {
-    setCategoriaEditando(categoria);
-    setMostrarFormCategoria(true);
   };
 
   const handleEliminarCategoria = async (categoriaId) => {
@@ -189,50 +179,51 @@ export const useInventario = () => {
     }
   };
 
-  const handleSaveCategoria = async (datos) => {
+  const handleGuardarCategoria = async (
+    datos,
+    categoria,
+    setMostrarFormCategoria
+  ) => {
     try {
-      if (categoriaEditando) {
-        await updateCategoria(categoriaEditando.id, datos);
+      if (categoria) {
+        await editarCategoria(categoria.id, datos);
+        Swal.fire({
+          icon: "success",
+          title: "¡Actualizado!",
+          text: "La categoría ha sido actualizada correctamente",
+        });
       } else {
-        await createCategoria(datos);
+        // Crear nueva categoría
+        await agregarCategoria(datos);
+        Swal.fire({
+          icon: "success",
+          title: "¡Creada!",
+          text: "La categoría ha sido creada correctamente",
+        });
       }
       setMostrarFormCategoria(false);
-      setCategoriaEditando(null);
-      cargarCategorias();
     } catch (error) {
       console.error("Error guardando categoría:", error);
-      throw error; // Para manejar el error en el componente si es necesario
+      console.log("Error completo:", error.response); // Agrega esto para debug
+
+      const mensajeBackend =
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        "Ocurrió un error al guardar la categoría";
+
+      Swal.fire({
+        icon: "error",
+        title: "¡Error!",
+        text: mensajeBackend,
+      });
     }
   };
-
-  // Handlers de UI
-  const abrirFormProducto = () => {
-    setProductoEditando(null);
-    setMostrarFormProducto(true);
-  };
-
-  const abrirFormCategoria = () => {
-    setCategoriaEditando(null);
-    setMostrarFormCategoria(true);
-  };
-
-  const cerrarFormProducto = () => {
-    setMostrarFormProducto(false);
-    setProductoEditando(null);
-  };
-
-  const cerrarFormCategoria = () => {
-    setMostrarFormCategoria(false);
-    setCategoriaEditando(null);
-  };
-
   const limpiarFiltros = () => {
     setFiltroBusqueda("");
     setFiltroCategoria("");
     setFiltroStock("");
   };
 
-  // Utilidades
   const obtenerNombreCategoria = (categoriaId) => {
     if (!categoriaId) return "Sin categoría";
     const categoria = categorias.find((cat) => cat.id === categoriaId);
@@ -243,87 +234,62 @@ export const useInventario = () => {
     return `C$ ${parseFloat(precio).toFixed(2)}`;
   };
 
-  const getColorStock = (stock) => {
-    if (stock === 0) return "bg-rose-100 text-rose-800 border-rose-200";
-    if (stock < 10) return "bg-amber-100 text-amber-800 border-amber-200";
+  const getColorStock = (producto) => {
+    if (producto.stock === 0) return "bg-rose-100 text-rose-800 border-rose-200";
+    if (producto.stock < producto.stock_minimo) return "bg-amber-100 text-amber-800 border-amber-200";
     return "bg-emerald-100 text-emerald-800 border-emerald-200";
   };
 
   // Filtrado de productos
-  const productosFiltrados = productos.filter((producto) => {
-    const coincideBusqueda =
-      producto.nombre?.toLowerCase().includes(filtroBusqueda.toLowerCase()) ||
-      producto.codigo_barras
-        ?.toLowerCase()
-        .includes(filtroBusqueda.toLowerCase()) ||
-      obtenerNombreCategoria(producto.categoria_id)
-        ?.toLowerCase()
-        .includes(filtroBusqueda.toLowerCase());
+  const productosFiltrados = productos.filter((p) => {
+  // 1️⃣ Filtrar por búsqueda (nombre, código o categoría)
+  const termino = filtroBusqueda.toLowerCase();
+  const coincideBusqueda =
+    p.nombre?.toLowerCase().includes(termino) ||
+    p.codigo_barras?.toLowerCase().includes(termino) ||
+    obtenerNombreCategoria(p.categoria_id)?.toLowerCase().includes(termino);
 
-    const coincideCategoria =
-      !filtroCategoria || producto.categoria_id === parseInt(filtroCategoria);
+  // 2️⃣ Filtrar por categoría seleccionada
+  const coincideCategoria =
+    !filtroCategoria || p.categoria_id === parseInt(filtroCategoria);
 
-    const coincideStock = (() => {
-      switch (filtroStock) {
-        case "con-stock":
-          return producto.stock > 0;
-        case "sin-stock":
-          return producto.stock === 0;
-        case "stock-bajo":
-          return producto.stock > 0 && producto.stock < 10;
-        default:
-          return true;
-      }
-    })();
+  // 3️⃣ Filtrar por stock
+  const coincideStock = (() => {
+    switch (filtroStock) {
+      case "con-stock":
+        return p.stock > p.stock_minimo;
+      case "sin-stock":
+        return p.stock === 0;
+      case "stock-bajo":
+      return p.stock > 0 && p.stock < p.stock_minimo; 
+      default:
+        return true;
+    }
+  })();
 
-    return coincideBusqueda && coincideCategoria && coincideStock;
-  });
+  // 4️⃣ Solo incluir si cumple todos los filtros
+  return coincideBusqueda && coincideCategoria && coincideStock;
+});
 
-  // Retornar todos los estados y handlers
   return {
-    // Estados
-    mostrarFormProducto,
-    mostrarFormCategoria,
     productos,
     categorias,
-    productoEditando,
-    categoriaEditando,
     filtroBusqueda,
     filtroCategoria,
     filtroStock,
     productosFiltrados,
-
-    // Setters
-
     setFiltroBusqueda,
     setFiltroCategoria,
     setFiltroStock,
-
-    // Handlers de productos
-    handleEditarProducto,
     handleEliminarProducto,
     handleActivarProducto,
     handleGuardarProducto,
-
-    // Handlers de categorías
-    handleEditarCategoria,
     handleEliminarCategoria,
-    handleSaveCategoria,
+    handleGuardarCategoria,
     handleActivarCategoria,
-
-    // Handlers de UI
-    abrirFormProducto,
-    abrirFormCategoria,
-    cerrarFormProducto,
-    cerrarFormCategoria,
     limpiarFiltros,
-
-    // Utilidades
     obtenerNombreCategoria,
     formatearPrecio,
     getColorStock,
-
-    // Funciones de carga
-    cargarCategorias,
   };
 };

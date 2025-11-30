@@ -28,26 +28,15 @@ export const ProductosProvider = ({ children }) => {
       setLoading(false);
     }
   };
-  const minusStock = (productos) => {
-    const num = productos.filter((p) => p.stock_minimo).length;
-    setStockBajo(num);
-  };
-
-  const zeroStock = (productos) => {
-    const num = productos.filter((p) => p.stock <= 0).length;
-    setSinStock(num);
-  };
-  const productosDesactivados = (productos) => {
-    const num = productos.filter((p) => !p.activo).length;
-    setDesactivados(num);
-  };
 
   const agregarProducto = async (datos) => {
-    await createProducto(datos);
+    const response = await createProducto(datos);
     await cargarProductos();
+    return response;
   };
   const editarProducto = async (id, datos) => {
     await updateProducto(id, datos);
+
     await cargarProductos();
   };
   const eliminarProducto = async (id) => {
@@ -64,12 +53,14 @@ export const ProductosProvider = ({ children }) => {
     cargarProductos();
   }, []);
 
- useEffect(() => {
-  setStockBajo(productos.filter(p => (p.stock || 0) <= (p.stock_minimo || 0)).length);
-  setSinStock(productos.filter(p => (p.stock || 0) <= 0).length);
-  setDesactivados(productos.filter(p => !p.activo).length);
-  setProductosActivos(productos.filter( p => p.activo).length);
-}, [productos]);
+  useEffect(() => {
+    setStockBajo(
+      productos.filter((p) => (p.stock || 0) <= (p.stock_minimo || 0)).length
+    );
+    setSinStock(productos.filter((p) => (p.stock || 0) <= 0).length);
+    setDesactivados(productos.filter((p) => !p.activo).length);
+    setProductosActivos(productos.filter((p) => p.activo).length);
+  }, [productos]);
 
   return (
     <ProductosContext.Provider
@@ -85,6 +76,7 @@ export const ProductosProvider = ({ children }) => {
         editarProducto,
         eliminarProducto,
         activarProducto,
+        setProductos,
       }}
     >
       {children}

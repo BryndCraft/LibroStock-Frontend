@@ -32,9 +32,13 @@ export const createProveedor = (Proveedor) => {
 };
 
 export const updateProveedor = (id, Proveedor) => {
-    return proveedorApi.put(`/update/${id}/`, Proveedor);  
+    return proveedorApi.patch(`/update/${id}/`, Proveedor);  
 }
 
 export const deleteProveedor = (id) => {
     return proveedorApi.post(`/delete/${id}/`);
+}
+
+export const activateProveedor = (id) =>{
+  return proveedorApi.post(`/activate/${id}/`);
 }

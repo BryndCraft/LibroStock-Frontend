@@ -1,39 +1,71 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Save,
-  Cancel,
-  Inventory2,
-  LocalOffer,
-  Description,
-  Category,
-  Archive,
-  Numbers,
-  Search,
-} from "@mui/icons-material";
-import { searchCategorias } from "../../../../apis/categorias.api";
 import CustomSelect from "../../../../components/utils/CustomSelect";
 import { useProveedor } from "../../../../context/ProveedorContext";
 import { useCategorias } from "../../../../context/CategoriasContext";
+import { useInventario } from "../hooks/useInventario";
 
-export function ProductoForm({ producto, onSave, onCancel }) {
+export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
   const [formData, setFormData] = useState({
-    nombre: producto?.nombre || "",
-    descripcion: producto?.descripcion || "",
-    precio: producto?.precio || "",
-    costo: producto?.costo || "",
-    stock: producto?.stock || "0",
-    stock_minimo: producto?.stock_minimo || "0",
-    stock_maximo: producto?.stock_maximo || "",
-    codigo_barras: producto?.codigo_barras || "",
-    categoria_id: producto?.categoria_id || "",
-    proveedor_id: producto?.proveedor_id || "",
-    ubicacion: producto?.ubicacion || "",
-    activo: producto?.activo !== undefined ? producto.activo : true,
+    nombre: "",
+    descripcion: "",
+    precio_venta: "",
+    stock: "",
+    stock_minimo: "",
+    codigo_barras: "",
+    categoria_id: "",
+    proveedor_id: "",
+    ubicacion: "",
+    activo:
+      productoEditando?.activo !== undefined ? productoEditando.activo : true,
   });
 
+  const { handleGuardarProducto } = useInventario();
   const { proveedores } = useProveedor();
   const { categorias } = useCategorias();
+
+  // Actualizar formData cuando cambia el producto a editar
+  useEffect(() => {
+    if (productoEditando) {
+      setFormData({
+        nombre: productoEditando.nombre || "",
+        descripcion: productoEditando.descripcion || "",
+        precio_venta: productoEditando.precio_venta || "",
+        stock: productoEditando.stock || "0",
+        stock_minimo: productoEditando.stock_minimo || "0",
+        codigo_barras: productoEditando.codigo_barras || "",
+        categoria_id: productoEditando.categoria_id || "",
+        proveedor_id: productoEditando.proveedor_id || "",
+        ubicacion: productoEditando.ubicacion || "",
+        activo:
+          productoEditando.activo !== undefined
+            ? productoEditando.activo
+            : true,
+      });
+    }
+  }, [productoEditando]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Preparar datos para enviar
+    const datosEnviar = {
+      ...formData,
+      precio_venta: parseFloat(formData.precio_venta),
+      stock: parseInt(formData.stock) || 0,
+      stock_minimo: parseInt(formData.stock_minimo) || 0,
+      categoria_id: formData.categoria_id || null,
+      proveedor_id: formData.proveedor_id || null,
+      codigo_barras:
+        productoEditando?.codigo_barras || generarCodigoBarrasEAN13(),
+      costo_promedio: parseFloat(0),
+    };
+
+    handleGuardarProducto(
+      datosEnviar,
+      productoEditando,
+      setMostrarProductoForm
+    );
+  };
 
   function generarCodigoBarrasEAN13() {
     const base = Array.from({ length: 12 }, () =>
@@ -46,36 +78,6 @@ export function ProductoForm({ producto, onSave, onCancel }) {
     const digitoVerificador = (10 - (suma % 10)) % 10;
     return [...base, digitoVerificador].join("");
   }
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Validaciones
-    if (!formData.nombre.trim()) {
-      alert("El nombre del producto es requerido");
-      return;
-    }
-
-    if (!formData.precio || parseFloat(formData.precio) <= 0) {
-      alert("El precio debe ser mayor a 0");
-      return;
-    }
-
-    // Preparar datos para enviar
-    const datosEnviar = {
-      ...formData,
-      precio: parseFloat(formData.precio),
-      costo: parseFloat(formData.costo) || 0,
-      stock: parseInt(formData.stock) || 0,
-      stock_minimo: parseInt(formData.stock_minimo) || 0,
-      stock_maximo: parseInt(formData.stock_maximo) || null,
-      categoria_id: formData.categoria_id || null,
-      proveedor_id: formData.proveedor_id || null,
-      codigo_barras: producto?.codigo_barras || generarCodigoBarrasEAN13(), // no regenerar si ya existe
-    };
-
-    onSave(datosEnviar);
-  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -115,31 +117,19 @@ export function ProductoForm({ producto, onSave, onCancel }) {
                 <label>Precio *</label>
                 <input
                   type="number"
-                  name="precio"
-                  value={formData.precio}
+                  name="precio_venta"
+                  value={formData.precio_venta}
                   onChange={handleChange}
                   min="0"
+                  step="0.01"
                   required
                   className="w-full border rounded px-3 py-2"
                   placeholder="0.00"
                 />
               </div>
 
-              {/* Costo */}
-              <div>
-                <label>Costo</label>
-                <input
-                  type="number"
-                  name="costo"
-                  value={formData.costo}
-                  onChange={handleChange}
-                  min="0"
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="0.00"
-                />
-              </div>
+              {/* Stock - Solo mostrar en creación, no en edición */}
 
-              {/* Stock */}
               <div>
                 <label>Stock Inicial</label>
                 <input
@@ -166,19 +156,7 @@ export function ProductoForm({ producto, onSave, onCancel }) {
                 />
               </div>
 
-              {/* Stock máximo */}
-              <div>
-                <label>Stock Máximo</label>
-                <input
-                  type="number"
-                  name="stock_maximo"
-                  value={formData.stock_maximo}
-                  onChange={handleChange}
-                  min="0"
-                  className="w-full border rounded px-3 py-2"
-                />
-              </div>
-
+             
               {/* Categoría */}
               <div className="md:col-span-2">
                 <label>Categoría</label>
@@ -187,7 +165,7 @@ export function ProductoForm({ producto, onSave, onCancel }) {
                   options={[
                     { value: "", label: "Seleccionar categoría" },
                     ...categorias
-                      .filter((cat) => cat.activo) // <-- solo activas
+                      .filter((cat) => cat.activo)
                       .map((cat) => ({ value: cat.id, label: cat.nombre })),
                   ]}
                   value={formData.categoria_id || ""}
@@ -205,11 +183,14 @@ export function ProductoForm({ producto, onSave, onCancel }) {
                   label="Proveedor"
                   options={[
                     { value: "", label: "Seleccionar proveedor" },
-                    ...proveedores.filter((p) => p.activo)
-                    .map((p) => ({
-                      value: p.id,
-                      label: p.empresa,
-                    }))
+                    ...(productoEditando
+                      ? proveedores.map((p) => ({
+                          value: p.id,
+                          label: p.empresa,
+                        }))
+                      : proveedores
+                          .filter((p) => p.activo)
+                          .map((p) => ({ value: p.id, label: p.empresa }))),
                   ]}
                   value={formData.proveedor_id || ""}
                   onChange={(value) =>
@@ -250,16 +231,16 @@ export function ProductoForm({ producto, onSave, onCancel }) {
             <div className="flex justify-end gap-3 pt-4 border-t">
               <button
                 type="button"
-                onClick={onCancel}
-                className="px-6 py-3 bg-gray-500 text-white rounded"
+                onClick={() => setMostrarProductoForm(false)}
+                className="px-6 py-3 bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-6 py-3 bg-blue-600 text-white rounded"
+                className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
               >
-                {producto ? "Actualizar" : "Guardar"} Producto
+                {productoEditando ? "Actualizar" : "Guardar"} Producto
               </button>
             </div>
           </form>

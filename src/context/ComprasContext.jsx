@@ -47,6 +47,7 @@ export const ComprasProvider = ({ children }) => {
 
       // Actualizamos solo los productos de la compra
       actualizarStock(compra.productos);
+      cargarCompras();
 
       return response;
     } catch (error) {
@@ -60,7 +61,7 @@ export const ComprasProvider = ({ children }) => {
   useEffect(() => {
     cargarCompras();
   }, []);
-  
+
   return (
     <ComprasContext.Provider
       value={{

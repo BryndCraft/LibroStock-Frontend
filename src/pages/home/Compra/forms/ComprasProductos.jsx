@@ -26,7 +26,7 @@ export default function ComprasProductos({
   const { obtenerNombreCategoria } = useInventario();
 
   const productosFiltrados = productos.filter(
-    (p) => p.activo && p.proveedor_id === formData.proveedor_id
+    (p) => p.estado && p.proveedor_id === formData.proveedor_id
   );
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -152,7 +152,7 @@ export default function ComprasProductos({
                             {obtenerNombreCategoria(prod.categoria_id)}
                           </td>
                           <td className="p-3">{prod.stock}</td>
-                          <td className="p-3">${prod.precio_venta}</td>
+                          <td className="p-3">${prod.precio}</td>
                           <td className="p-3 text-center">
                             <button
                               onClick={() => {

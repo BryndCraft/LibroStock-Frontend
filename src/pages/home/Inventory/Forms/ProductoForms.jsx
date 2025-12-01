@@ -9,15 +9,14 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
-    precio_venta: "",
+    precio: "",
     stock: "",
     stock_minimo: "",
     codigo_barras: "",
     categoria_id: "",
     proveedor_id: "",
-    ubicacion: "",
-    activo:
-      productoEditando?.activo !== undefined ? productoEditando.activo : true,
+    estado:
+      productoEditando?.estado !== undefined ? productoEditando.estado : true,
   });
 
   const { handleGuardarProducto } = useInventario();
@@ -30,16 +29,15 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
       setFormData({
         nombre: productoEditando.nombre || "",
         descripcion: productoEditando.descripcion || "",
-        precio_venta: productoEditando.precio_venta || "",
+        precio: productoEditando.precio_venta || "",
         stock: productoEditando.stock || "0",
         stock_minimo: productoEditando.stock_minimo || "0",
         codigo_barras: productoEditando.codigo_barras || "",
         categoria_id: productoEditando.categoria_id || "",
         proveedor_id: productoEditando.proveedor_id || "",
-        ubicacion: productoEditando.ubicacion || "",
-        activo:
-          productoEditando.activo !== undefined
-            ? productoEditando.activo
+        estado:
+          productoEditando.estado !== undefined
+            ? productoEditando.estado
             : true,
       });
     }
@@ -50,7 +48,7 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
     // Preparar datos para enviar
     const datosEnviar = {
       ...formData,
-      precio_venta: parseFloat(formData.precio_venta),
+      precio: parseFloat(formData.precio_venta),
       stock: parseInt(formData.stock) || 0,
       stock_minimo: parseInt(formData.stock_minimo) || 0,
       categoria_id: formData.categoria_id || null,
@@ -122,7 +120,6 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
                   onChange={handleChange}
                   min="0"
                   step="0.01"
-                  required
                   className="w-full border rounded px-3 py-2"
                   placeholder="0.00"
                 />
@@ -165,7 +162,7 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
                   options={[
                     { value: "", label: "Seleccionar categoría" },
                     ...categorias
-                      .filter((cat) => cat.activo)
+                      .filter((cat) => cat.estado)
                       .map((cat) => ({ value: cat.id, label: cat.nombre })),
                   ]}
                   value={formData.categoria_id || ""}
@@ -189,7 +186,7 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
                           label: p.empresa,
                         }))
                       : proveedores
-                          .filter((p) => p.activo)
+                          .filter((p) => p.estado)
                           .map((p) => ({ value: p.id, label: p.empresa }))),
                   ]}
                   value={formData.proveedor_id || ""}
@@ -197,19 +194,6 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
                     setFormData((prev) => ({ ...prev, proveedor_id: value }))
                   }
                   width="100%"
-                />
-              </div>
-
-              {/* Ubicación */}
-              <div className="md:col-span-2">
-                <label>Ubicación</label>
-                <input
-                  type="text"
-                  name="ubicacion"
-                  value={formData.ubicacion}
-                  onChange={handleChange}
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="Ej: Estante A3"
                 />
               </div>
 

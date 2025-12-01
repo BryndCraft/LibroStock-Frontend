@@ -53,7 +53,7 @@ export default function VistaProductos({ setVista }) {
 
 
 const productosFiltradosFinal = productosFiltrados.filter((p) =>
-  productosInactivos ? !p.activo : p.activo
+  productosInactivos ? !p.estado : p.estado
 );
 
   
@@ -183,8 +183,8 @@ const productosFiltradosFinal = productosFiltrados.filter((p) =>
             Número de Productos{" "}
             <span className="text-blue-400">
               {productosInactivos
-                ? productosFiltrados.filter((p) => !p.activo).length
-                : productosFiltrados.filter((p) => p.activo).length}
+                ? productosFiltrados.filter((p) => !p.estado).length
+                : productosFiltrados.filter((p) => p.estado).length}
             </span>
           </div>
           <div className="flex items-center gap-3">

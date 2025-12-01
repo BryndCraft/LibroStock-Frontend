@@ -22,7 +22,7 @@ export default function VistaTablaProveedores({abrirEditarProveedor, proveedores
           </tr>
         </thead>
         <tbody>
-          {proveedoresFiltrados.filter((proveedor) => proveedoresInactivos ? proveedor.activo === false : proveedor.activo === true).map((proveedor) => (
+          {proveedoresFiltrados.filter((proveedor) => proveedoresInactivos ? proveedor.estado === false : proveedor.estado=== true).map((proveedor) => (
             <tr key={proveedor.id} className="border-b border-slate-200/40 hover:bg-orange-50/20 transition-colors duration-200 group">
               <td className="p-6">
                 <div className="flex items-center gap-4">
@@ -75,7 +75,7 @@ export default function VistaTablaProveedores({abrirEditarProveedor, proveedores
               </td>
               <td className="p-6">
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-sm ">
-                  {proveedor.activo ? 'Activo' : 'Inactivo'}
+                  {proveedor.estado ? 'Activo' : 'Inactivo'}
                 </span>
               </td>
               <td className="p-6">
@@ -88,7 +88,7 @@ export default function VistaTablaProveedores({abrirEditarProveedor, proveedores
                     <Edit className="w-5 h-5" />
                   </button>
                   
-                  {proveedor.activo ? (<button
+                  {proveedor.estado ? (<button
                     className="p-3 text-rose-600 hover:bg-rose-50/50 rounded-xl transition-all duration-200 hover:scale-105 border border-rose-200/60 backdrop-blur-sm hover:border-rose-300"
                     title="Eliminar proveedor"
                     onClick={() => eliminarProveedor(proveedor.id)}

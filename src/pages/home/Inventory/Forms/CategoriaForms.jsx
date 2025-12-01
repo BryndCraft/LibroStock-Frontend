@@ -16,7 +16,7 @@ export function CategoriaForm({ categoria, setMostrarCategoriaForm }) {
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
-    activo: true,
+    estado: true,
   });
 
   useEffect(() => {
@@ -24,14 +24,14 @@ export function CategoriaForm({ categoria, setMostrarCategoriaForm }) {
       setFormData({
         nombre: categoria.nombre || "",
         descripcion: categoria.descripcion || "",
-        activo: categoria.activo !== undefined ? categoria.activo : true,
+        estado: categoria.estado !== undefined ? categoria.estado : true,
       });
     } else {
       // Resetear el formulario cuando no hay categoría (creación nueva)
       setFormData({
         nombre: "",
         descripcion: "",
-        activo: true,
+        estado: true,
       });
     }
   }, [categoria]);

@@ -19,8 +19,8 @@ export default function VistaProveedores() {
 
   const filtrarProveedores = () => {
     return proveedores.filter((p) => {
-      // Filtrar por estado activo/inactivo
-      const estadoOk = proveedoresInactivos ? !p.activo : p.activo;
+      // Filtrar por estado estado/inestado
+      const estadoOk = proveedoresInactivos ? !p.estado : p.estado;
 
       // Filtrar por término de búsqueda
       const termino = filtroBusqueda.toLowerCase();

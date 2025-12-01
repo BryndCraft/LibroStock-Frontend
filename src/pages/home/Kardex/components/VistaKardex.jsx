@@ -8,7 +8,7 @@ import { useProductos } from "../../../../context/ProductosContext";
 
 export default function VistaKardex() {
   const { kardex, setKardex } = useKardex();
-  const { productos, setProductos } = useProductos();
+  const { productos} = useProductos();
   console.log(kardex);
   console.log(productos);
 
@@ -131,10 +131,13 @@ export default function VistaKardex() {
                     Cantidad
                   </th>
                   <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
-                    Costo Promedio
+                    Costo Unitario
                   </th>
                   <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
-                    Acciones
+                    Costo Total
+                  </th>
+                   <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
+                    Costo Promedio
                   </th>
                 </tr>
               </thead>
@@ -161,16 +164,16 @@ export default function VistaKardex() {
                     </td>
                     <td className="p-6 whitespace-nowrap">
                       <div className="text-gray-700 font-medium">
-                        {formatearFecha(data.fecha)}
+                        {formatearFecha(data.created_date)}
                       </div>
                     </td>
                     <td className="p-6 whitespace-nowrap">
                       <span
                         className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getTipoColor(
-                          data.tipo
+                          data.tipo_movimiento
                         )}`}
                       >
-                        {data.tipo || "N/A"}
+                        {data.tipo_movimiento || "N/A"}
                       </span>
                     </td>
                     <td className="p-6 whitespace-nowrap">
@@ -181,7 +184,7 @@ export default function VistaKardex() {
                     <td className="p-6 whitespace-nowrap">
                       <div
                         className={`font-bold ${
-                          data.tipo?.toLowerCase() === "entrada"
+                          data.tipo_movimiento === "ENTRADA"
                             ? "text-green-600"
                             : "text-red-600"
                         }`}
@@ -191,13 +194,20 @@ export default function VistaKardex() {
                     </td>
                     <td className="p-6 whitespace-nowrap">
                       <div className="text-gray-900 font-semibold">
-                        {formatCurrency(data.costo_prom_actual)}
+                        {formatCurrency(data.costo_unitario)}
                       </div>
                     </td>
                     <td className="p-6 whitespace-nowrap">
-                      <button className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-200 shadow-sm">
-                        Ver Detalles
-                      </button>
+        
+                      <div className="font-poppinsBold">
+                        {formatCurrency(data.costo_total)}
+                      </div>
+                    </td>
+
+                     <td className="p-6 whitespace-nowrap">
+                      <div className="font-poppinsBold ">
+                        {formatCurrency(data.costo_promedio)}
+                      </div>
                     </td>
                   </tr>
                 ))}

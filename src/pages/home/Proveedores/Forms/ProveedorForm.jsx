@@ -16,13 +16,13 @@ export function ProveedorForm({ proveedorEditando, setModalFormProveedor }) {
 
   const [formData, setFormData] = useState({
     empresa: "",
-    nombre_contacto: "",
+    contacto: "",
     telefono: "",
     correo: "",
-    ruc: "",
     direccion: "",
-    activo:
-      proveedorEditando?.activo !== undefined ? proveedorEditando.activo : true,
+    ruc: "",
+    estado:
+      proveedorEditando?.estado !== undefined ? proveedorEditando.estado : true,
   });
 
   useEffect(() => {
@@ -31,12 +31,12 @@ export function ProveedorForm({ proveedorEditando, setModalFormProveedor }) {
         return {
           ...prev,
           empresa: proveedorEditando?.empresa || "",
-          nombre_contacto: proveedorEditando?.nombre_contacto || "",
+          contacto: proveedorEditando?.contacto || "",
           telefono: proveedorEditando?.telefono || "",
           correo: proveedorEditando?.correo || "",
           ruc: proveedorEditando?.ruc || "",
           direccion: proveedorEditando?.direccion || "",
-          activo: proveedorEditando?.activo,
+          estado: proveedorEditando?.estado,
         };
       } else {
         return {
@@ -124,9 +124,9 @@ export function ProveedorForm({ proveedorEditando, setModalFormProveedor }) {
                 <Person className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
                   type="text"
-                  name="nombre_contacto"
+                  name="contacto"
                   onChange={handleChange}
-                  value={formData.nombre_contacto}
+                  value={formData.contacto}
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Ej: Juan Pérez"
                 />

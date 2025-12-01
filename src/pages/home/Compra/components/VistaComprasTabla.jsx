@@ -98,7 +98,7 @@ export function VistaComprasTabla() {
     0
   );
   const comprasEsteMes = compras.filter((compra) => {
-    const fechaCompra = new Date(compra.fecha);
+    const fechaCompra = new Date(compra.create_date);
     const hoy = new Date();
     return (
       fechaCompra.getMonth() === hoy.getMonth() &&
@@ -229,7 +229,7 @@ export function VistaComprasTabla() {
                   <div className="flex items-center space-x-2">
                     <ReceiptIcon className="text-gray-400" fontSize="small" />
                     <span className="font-medium text-gray-900">
-                      {compra.numero_factura || "N/A"}
+                      {compra.factura || "N/A"}
                     </span>
                   </div>
                 </td>
@@ -252,7 +252,7 @@ export function VistaComprasTabla() {
                   <div className="flex items-center space-x-2">
                     <CalendarIcon className="text-gray-400" fontSize="small" />
                     <span className="font-medium text-gray-700">
-                      {formatearFecha(compra.fecha)}
+                      {formatearFecha(compra.create_date)}
                     </span>
                   </div>
                 </td>

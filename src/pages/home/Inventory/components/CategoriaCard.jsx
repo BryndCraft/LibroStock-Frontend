@@ -17,9 +17,9 @@ export function CategoriaCard({handleEditarCategoria}) {
               <div className="w-14 h-14 bg-gradient-to-br from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <Category className="text-white text-2xl" />
               </div>
-              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-sm ${categoria.activo ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-rose-100 text-rose-800 border-rose-200'
+              <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border backdrop-blur-sm ${categoria.estado ? 'bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-rose-100 text-rose-800 border-rose-200'
                 }`}>
-                {categoria.activo ? 'Activa' : 'Inactiva'}
+                {categoria.estado ? 'Activa' : 'Inactiva'}
               </span>
             </div>
 
@@ -45,7 +45,7 @@ export function CategoriaCard({handleEditarCategoria}) {
                 Editar
               </button>
               
-              {categoria.activo ? (
+              {categoria.estado ? (
                 <button
                 onClick={() => handleEliminarCategoria(categoria.id)}
                 className="flex-1 py-3 bg-gradient-to-r from-rose-500 to-pink-600 text-white rounded-xl hover:from-rose-600 hover:to-pink-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-sm border border-rose-400/30"

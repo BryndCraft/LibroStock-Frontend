@@ -37,7 +37,7 @@ export default function Sidebar() {
     { name: "Proveedores", path: "/proveedores", icon: <SupervisedUserCircleIcon className="text-xl" /> },
     { name: "Compras", path: "/compras", icon: <LibraryAdd className="text-xl" /> },
     { name: "Prueba", path: "/prueba", icon: <LibraryAdd className="text-xl" />},
-    { name: "Kardex", path: "/kardex", icon: <LibraryAdd className="text-xl" />}
+    { name: "Movimientos", path: "/movimientos", icon: <LibraryAdd className="text-xl" />}
   ];
 
   return (

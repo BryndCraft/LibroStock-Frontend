@@ -18,7 +18,7 @@ comprasApi.interceptors.request.use(
 );
 
 export const searchCompras = (producto_id = "") => {
-  return comprasApi.post("/list/", { producto_id });
+  return comprasApi.post("/search/", { producto_id });
 };
 
 export const createCompra = (compra) => {

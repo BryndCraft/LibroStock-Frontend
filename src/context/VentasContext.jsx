@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { createVenta } from "../apis/ventas.api";
 import { useProductos } from "./ProductosContext";
 const VentasContext = createContext();
@@ -8,7 +8,7 @@ export const VentasProvider = ({ children }) => {
   const [ventas, setVentas] = useState([]);
   const [loading, setLoading] = useState(false);
   const {setProductos} = useProductos();
-
+  const hasLoaded = useRef(false);
 
   const actualizarStock = (productosventa) => {
     setProductos((prevProductos) =>

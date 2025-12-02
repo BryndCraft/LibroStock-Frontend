@@ -8,7 +8,7 @@ import {
 } from "@mui/icons-material";
 import { useProductos } from "../../../../context/ProductosContext";
 import { useInventario } from "../hooks/useInventario";
-
+import { searchProductos } from "../../../../apis/productos.api";
 export function ProductoCard({
   mostrar_inactivos,
   handleEditarProducto,
@@ -22,7 +22,6 @@ export function ProductoCard({
     getColorStock,
     formatearPrecio,
   } = useInventario();
-
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
@@ -74,7 +73,7 @@ export function ProductoCard({
                     <LocalOffer className="w-3 h-3 text-emerald-600" />
                   </div>
                   <span className="font-bold text-emerald-600 text-sm break-words min-w-0">
-                    {formatearPrecio(producto.precio_venta)}
+                    {formatearPrecio(producto.precio)}
                   </span>
                 </div>
               </div>
@@ -84,6 +83,23 @@ export function ProductoCard({
                 <div className="p-2 bg-slate-100/50 rounded-lg border border-slate-200/40 backdrop-blur-sm mt-3">
                   <span className="text-xs text-slate-500 font-mono truncate block">
                     Cód: {producto.codigo_barras}
+                  </span>
+                </div>
+              )}
+              {/* Precio de Compra */}
+              {producto.precio_compra && (
+                <div className="p-2 bg-slate-100/50 rounded-lg border border-slate-200/40 backdrop-blur-sm mt-3">
+                  <span className="text-xs text-slate-500 font-mono truncate block">
+                    Precio de compra: C$  {producto.precio_compra}
+                  </span>
+                </div>
+              )}
+              
+              {/* Stock Minimo */}
+              {producto.stock_minimo && (
+                <div className="p-2 bg-slate-100/50 rounded-lg border border-slate-200/40 backdrop-blur-sm mt-3">
+                  <span className="text-xs text-slate-500 font-mono truncate block">
+                    Stock Minimo: {producto.stock_minimo} unidades
                   </span>
                 </div>
               )}

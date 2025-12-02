@@ -1,5 +1,5 @@
 // context/ProveedorContext.js
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import Swal from "sweetalert2";
 import {
   searchProveedor,
@@ -18,6 +18,7 @@ export const ProveedorProvider = ({ children }) => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [filtroEstado, setFiltroEstado] = useState("");
+  const hasLoaded = useRef(false);
 
   // Cargar proveedores
   const fetchProveedores = async (searchTerm = search, pageNumber = page) => {
@@ -27,8 +28,7 @@ export const ProveedorProvider = ({ children }) => {
       setProveedores(response.data?.Proveedores?.results || []);
       setTotal(response.data?.Proveedores?.total || 0);
     } catch (error) {
-      console.error("Error cargando proveedores:", error);
-      Swal.fire("Error", "Error al cargar los proveedores", "error");
+      console.error("Error cargando proveedores:", error);      
     } finally {
       setLoading(false);
     }
@@ -126,7 +126,10 @@ export const ProveedorProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchProveedores();
+    if (!hasLoaded.current){
+      hasLoaded.current = true;
+      fetchProveedores();
+    }
   }, []);
 
   return (

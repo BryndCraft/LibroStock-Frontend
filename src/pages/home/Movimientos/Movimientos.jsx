@@ -1,6 +1,6 @@
 import Sidebar from "../../../components/utils/Sidebar"
-import VistaKardex from "./components/VistaKardex"
-export default function Kardex(){
+import VistaKardex from "./components/VistaMovimientos"
+export default function Movimientos(){
 
 
     return(

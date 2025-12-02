@@ -8,7 +8,7 @@ import { CategoriasProvider } from "./context/CategoriasContext.jsx";
 import { ProductosProvider } from "./context/ProductosContext.jsx";
 import { ProveedorProvider } from "./context/ProveedorContext.jsx";
 import { ComprasProvider } from "./context/ComprasContext.jsx";
-import { KardexProvider } from "./context/KardexContext.jsx";
+import { MovimientoProvider } from "./context/MovimientosContext.jsx";
 import { VentasProvider } from "./context/VentasContext.jsx";
 
 ReactDom.createRoot(document.getElementById("root")).render(
@@ -18,11 +18,11 @@ ReactDom.createRoot(document.getElementById("root")).render(
         <ProductosProvider>
           <ProveedorProvider>
             <ComprasProvider>
-              <KardexProvider>
+              <MovimientoProvider>
                 <VentasProvider>
                   <App />
                 </VentasProvider>
-              </KardexProvider>
+              </MovimientoProvider>
             </ComprasProvider>
           </ProveedorProvider>
         </ProductosProvider>

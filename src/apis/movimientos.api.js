@@ -1,12 +1,12 @@
 import axios from 'axios';
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
-const kardexApi = axios.create({
-  baseURL: `${baseURL}/Kardex/api/v1` // ✅ Aquí apuntamos a Kardex
+const movApi = axios.create({
+  baseURL: `${baseURL}/Movimientos/api/v1` // ✅ Aquí apuntamos a Movimientos
 });
 
 // Interceptor para enviar token en cada request
-kardexApi.interceptors.request.use(
+movApi.interceptors.request.use(
   (config) => {
     try {
       const access = sessionStorage.getItem('token');
@@ -21,7 +21,13 @@ kardexApi.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Traer todos los movimientos del Kardex
-export const searchKardex = (producto_id = "") => {
-  return kardexApi.post("/list/", { producto_id });
+// Traer todos los movimientos del Movimientos
+export const searchMovimientos = (page = 1, producto = "", fechaInicio = "", fechaFin = "") => {
+  return movApi.get(`/search/${page}/`, {
+    params: {
+      search: producto,
+      fecha_inicio: fechaInicio,
+      fecha_fin: fechaFin
+    }
+  });
 };

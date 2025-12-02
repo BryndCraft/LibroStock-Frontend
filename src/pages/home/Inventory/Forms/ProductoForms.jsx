@@ -9,7 +9,7 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
   const [formData, setFormData] = useState({
     nombre: "",
     descripcion: "",
-    precio_venta: "",
+    precio: "",
     stock: "",
     stock_minimo: "",
     codigo_barras: "",
@@ -18,11 +18,13 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
     ubicacion: "",
     activo:
       productoEditando?.activo !== undefined ? productoEditando.activo : true,
+    motivo: "",
+    precio_compra: ""
   });
-
   const { handleGuardarProducto } = useInventario();
   const { proveedores } = useProveedor();
   const { categorias } = useCategorias();
+  const [stockCambio, setStockCambio] = useState(false);
 
   // Actualizar formData cuando cambia el producto a editar
   useEffect(() => {
@@ -30,7 +32,7 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
       setFormData({
         nombre: productoEditando.nombre || "",
         descripcion: productoEditando.descripcion || "",
-        precio_venta: productoEditando.precio_venta || "",
+        precio: productoEditando.precio || "",
         stock: productoEditando.stock || "0",
         stock_minimo: productoEditando.stock_minimo || "0",
         codigo_barras: productoEditando.codigo_barras || "",
@@ -41,16 +43,25 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
           productoEditando.activo !== undefined
             ? productoEditando.activo
             : true,
+        motivo: "", 
+        precio_compra: productoEditando.precio_compra || ""
       });
+
+
     }
   }, [productoEditando]);
 
+  useEffect(() => {
+    if (!productoEditando) return;
+    const cambio = parseInt(formData.stock) !== parseInt(productoEditando.stock);
+    setStockCambio(cambio);
+  }, [formData.stock, productoEditando])
   const handleSubmit = (e) => {
     e.preventDefault();
     // Preparar datos para enviar
     const datosEnviar = {
       ...formData,
-      precio_venta: parseFloat(formData.precio_venta),
+      precio: parseFloat(formData.precio),
       stock: parseInt(formData.stock) || 0,
       stock_minimo: parseInt(formData.stock_minimo) || 0,
       categoria_id: formData.categoria_id || null,
@@ -58,6 +69,8 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
       codigo_barras:
         productoEditando?.codigo_barras || generarCodigoBarrasEAN13(),
       costo_promedio: parseFloat(0),
+      descripcion_mov: formData.motivo, 
+      precio_compra: parseFloat(formData.precio_compra)
     };
 
     handleGuardarProducto(
@@ -113,36 +126,55 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
               </div>
 
               {/* Precio */}
-              <div>
+              <div className="flex flex-col">
                 <label>Precio *</label>
-                <input
-                  type="number"
-                  name="precio_venta"
-                  value={formData.precio_venta}
-                  onChange={handleChange}
-                  min="0"
-                  step="0.01"
-                  required
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="0.00"
-                />
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600">C$</span>
+                  <input
+                    type="number"
+                    name="precio"
+                    value={formData.precio}
+                    onChange={handleChange}
+                    min="0"
+                    step="0.01"
+                    required
+                    className="w-full border rounded px-8 py-2"
+                    placeholder="0.00"
+                  />
+                </div>
               </div>
 
               {/* Stock - Solo mostrar en creación, no en edición */}
 
-              <div>
-                <label>Stock Inicial</label>
-                <input
-                  type="number"
-                  name="stock"
-                  value={formData.stock}
-                  onChange={handleChange}
-                  min="0"
-                  className="w-full border rounded px-3 py-2"
-                  placeholder="0"
-                />
-              </div>
+              {productoEditando ? (
+                <div>
+                  <label>Stock</label>
+                  <input
+                    type="number"
+                    name="stock"
+                    value={formData.stock}
+                    onChange={handleChange}
+                    min="0"
+                    className="w-full border rounded px-3 py-2"
+                    placeholder="0"
+                  />
+                </div>
 
+              ) : (
+                <div>
+                  <label>Stock Inicial</label>
+                  <input
+                    type="number"
+                    name="stock"
+                    value={formData.stock}
+                    onChange={handleChange}
+                    min="0"
+                    className="w-full border rounded px-3 py-2"
+                    placeholder="0"
+                  />
+                </div>
+
+              )}
               {/* Stock mínimo */}
               <div>
                 <label>Stock Mínimo</label>
@@ -155,8 +187,26 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
                   className="w-full border rounded px-3 py-2"
                 />
               </div>
+              <div className="flex flex-col">
+                <label>Precio de Compra</label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600">C$</span>
+                  <input
+                    type="number"
+                    name="precio"
+                    value={formData.precio_compra}
+                    onChange={handleChange}
+                    min="0"
+                    step="0.01"
+                    required
+                    className="w-full border rounded px-8 py-2"
+                    placeholder="0.00"
+                  />
+                </div>
+              </div>
 
-             
+
+
               {/* Categoría */}
               <div className="md:col-span-2">
                 <label>Categoría</label>
@@ -185,12 +235,12 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
                     { value: "", label: "Seleccionar proveedor" },
                     ...(productoEditando
                       ? proveedores.map((p) => ({
-                          value: p.id,
-                          label: p.empresa,
-                        }))
+                        value: p.id,
+                        label: p.empresa,
+                      }))
                       : proveedores
-                          .filter((p) => p.activo)
-                          .map((p) => ({ value: p.id, label: p.empresa }))),
+                        .filter((p) => p.activo)
+                        .map((p) => ({ value: p.id, label: p.empresa }))),
                   ]}
                   value={formData.proveedor_id || ""}
                   onChange={(value) =>
@@ -212,6 +262,20 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
                   placeholder="Ej: Estante A3"
                 />
               </div>
+              {stockCambio && productoEditando && (
+                <div className="md:col-span-2">
+                  <label>Motivo del cambio de stock *</label>
+                  <textarea
+                    name="motivo"
+                    value={formData.motivo} 
+                    onChange={handleChange}
+                    rows="3"
+                    className="w-full border rounded px-3 py-2"
+                    placeholder="Describa el motivo del cambio de stock (ej: Ajuste por inventario físico, Devolución de cliente, etc.)"
+                    required={stockCambio}
+                  />
+                </div>
+              )}
 
               {/* Descripción */}
               <div className="md:col-span-2">

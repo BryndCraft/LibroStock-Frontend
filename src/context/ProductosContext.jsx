@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import {
   createProducto,
   searchProductos,
@@ -16,6 +16,7 @@ export const ProductosProvider = ({ children }) => {
   const [sinStock, setSinStock] = useState();
   const [desactivados, setDesactivados] = useState();
   const [productosActivos, setProductosActivos] = useState();
+  const hasLoaded = useRef(false);
 
   const cargarProductos = async () => {
     try {
@@ -50,7 +51,10 @@ export const ProductosProvider = ({ children }) => {
     return response;
   };
   useEffect(() => {
-    cargarProductos();
+    if (!hasLoaded.current){
+      hasLoaded.current = true;
+      cargarProductos();
+    }
   }, []);
 
   useEffect(() => {

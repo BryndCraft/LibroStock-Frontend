@@ -1,13 +1,15 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useRef } from "react";
 import { searchCompras, createCompra } from "../apis/compras.api";
 import { useProductos } from "./ProductosContext";
 // Creamos el contexto
 const ComprasContext = createContext();
 
+
 // Provider
 export const ComprasProvider = ({ children }) => {
   const [compras, setCompras] = useState([]);
   const [loading, setLoading] = useState(false);
+  const hasLoaded = useRef(false);
 
   const { setProductos } = useProductos();
 
@@ -58,7 +60,10 @@ export const ComprasProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    cargarCompras();
+    if (!hasLoaded.current){
+      hasLoaded.current = true;
+      cargarCompras();
+    }
   }, []);
   
   return (

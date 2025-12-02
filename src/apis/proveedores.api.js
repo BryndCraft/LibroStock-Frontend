@@ -4,8 +4,6 @@ const baseURL = import.meta.env.VITE_API_BASE_URL;
 const proveedorApi = axios.create({
   baseURL: `${baseURL}/Proveedores/api/v1`
 });
-
-
 proveedorApi.interceptors.request.use(
   (config) => {
     try {

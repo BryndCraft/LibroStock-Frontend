@@ -11,7 +11,7 @@ import Perfil from "./pages/home/Perfil";
 import Panel from "./pages/home/MainPanel/Panel";
 import Proveedores from "./pages/home/Proveedores/Proveedores";
 import Compras from "./pages/home/Compra/Compras";
-import Kardex from "./pages/home/Kardex/Kardex";
+import Movimientos from "./pages/home/Movimientos/Movimientos";
 
 function App() {
   return (
@@ -63,9 +63,9 @@ function App() {
             </PrivateRoute>
           }/>
 
-          <Route path="/kardex" element={
+          <Route path="/Movimientos" element={
             <PrivateRoute>
-              <Kardex/>
+              <Movimientos/>
             </PrivateRoute>
           }/>
         </Routes>

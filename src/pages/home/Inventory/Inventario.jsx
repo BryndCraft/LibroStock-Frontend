@@ -6,7 +6,7 @@ export default function Inventario() {
   const [vista, setVista] = useState("productos");
 
   return (
-    <div className="min-h-screen w-full flex">
+    <div className="  min-h-screen w-full flex">
       <Sidebar />
       {vista === "productos" && <VistaProductos setVista={setVista} />}
       {vista === "categorias" && <VistaCategorias setVista={setVista} />}

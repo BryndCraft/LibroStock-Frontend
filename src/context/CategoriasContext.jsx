@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
 import {
   createCategoria,
   searchCategorias,
@@ -12,11 +12,13 @@ const CategoriasContext = createContext(null);
 export const CategoriasProvider = ({ children }) => {
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(false);
+  const hasLoaded = useRef(false);
 
-  const cargarCategorias = async () => {
+  const cargarCategorias = async (search = "", page = 1) => {
+    if (loading) return;
     try {
       setLoading(true);
-      const response = await searchCategorias("", 1);
+      const response = await searchCategorias(search, page);
       setCategorias(response.data?.Categorias?.results || []);
       setLoading(false);
     } catch (error) {
@@ -46,7 +48,10 @@ export const CategoriasProvider = ({ children }) => {
     return response;
   };
   useEffect(() => {
-    cargarCategorias();
+    if (categorias.length === 0 && !hasLoaded.current) {
+      hasLoaded.current = true;
+      cargarCategorias();
+    }
   }, []);
   return (
     <CategoriasContext.Provider

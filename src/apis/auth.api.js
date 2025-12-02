@@ -28,10 +28,13 @@ export const login = (credentials) => {
   return usuariosApi.post("/login/", credentials);
 };
 
-// 🔹 Cerrar sesión
+
 export const logoutApi = () => {
-  return usuariosApi.post("/logout/");
-};    
+  const resp =  usuariosApi.post("/logout/");    
+  return resp;
+};
+
+
 export const uploadFoto = async(archivo) => {
   const formData = new FormData();
   formData.append("foto", archivo);

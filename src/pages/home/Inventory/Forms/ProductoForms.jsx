@@ -193,7 +193,7 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-600">C$</span>
                   <input
                     type="number"
-                    name="precio"
+                    name="precio_compra"
                     value={formData.precio_compra}
                     onChange={handleChange}
                     min="0"

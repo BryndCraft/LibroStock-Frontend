@@ -194,6 +194,9 @@ export default function VistaMovimientos() {
                   <th className="text-left p-3 font-semibold text-gray-600 text-xs uppercase tracking-wider w-20">
                     Cantidad
                   </th>
+                                    <th className="text-left p-3 font-semibold text-gray-600 text-xs uppercase tracking-wider w-32">
+                    Saldo
+                  </th>
                   <th className="text-left p-3 font-semibold text-gray-600 text-xs uppercase tracking-wider w-32">
                     Costo Unitario
                   </th>
@@ -255,7 +258,11 @@ export default function VistaMovimientos() {
                         {data.cantidad > 0 ? '+' : '-'}{Math.abs(data.cantidad)}                        
                       </div>
                     </td>
-
+<td className="p-3">
+                      <div className={`font-bold text-sm ${data.cantidad > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {data.saldo}                        
+                      </div>
+                    </td>
                     <td className="p-3">
                       <div className="text-gray-900 font-semibold text-sm whitespace-nowrap">
                         {formatCurrency(data.costo_unitario)}

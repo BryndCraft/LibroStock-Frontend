@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import {
   createProducto,
   searchProductos,
@@ -6,18 +6,19 @@ import {
   deleteProducto,
   activateProductos,
 } from "../apis/productos.api";
-import { AirlineSeatReclineExtraSharp } from "@mui/icons-material";
+
 const ProductosContext = createContext(null);
 
 export const ProductosProvider = ({ children }) => {
   const [productos, setProductos] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [stockBajo, setStockBajo] = useState();
-  const [sinStock, setSinStock] = useState();
-  const [desactivados, setDesactivados] = useState();
-  const [productosActivos, setProductosActivos] = useState();
+  const [stockBajo, setStockBajo] = useState(0);
+  const [sinStock, setSinStock] = useState(0);
+  const [desactivados, setDesactivados] = useState(0);
+  const [productosActivos, setProductosActivos] = useState(0);
 
-  const cargarProductos = async () => {
+  // useCallback memoriza la función para que no se recree en cada render
+  const cargarProductos = useCallback(async () => {
     try {
       setLoading(true);
       const response = await searchProductos("", 1);
@@ -27,39 +28,40 @@ export const ProductosProvider = ({ children }) => {
       console.error("Error cargando productos:", error);
       setLoading(false);
     }
-  };
+  }, []); // no depende de nada externo
 
-  const agregarProducto = async (datos) => {
+  const agregarProducto = useCallback(async (datos) => {
     const response = await createProducto(datos);
-    await cargarProductos();
+    await cargarProductos(); // usamos la versión memorizada
     return response;
-  };
-  const editarProducto = async (id, datos) => {
-    await updateProducto(id, datos);
+  }, [cargarProductos]);
 
+  const editarProducto = useCallback(async (id, datos) => {
+    await updateProducto(id, datos);
     await cargarProductos();
-  };
-  const eliminarProducto = async (id) => {
+  }, [cargarProductos]);
+
+  const eliminarProducto = useCallback(async (id) => {
     await deleteProducto(id);
     await cargarProductos();
-  };
+  }, [cargarProductos]);
 
-  const activarProducto = async (id) => {
+  const activarProducto = useCallback(async (id) => {
     const response = await activateProductos(id);
     await cargarProductos();
     return response;
-  };
-  useEffect(() => {
-    cargarProductos();
-  }, []);
+  }, [cargarProductos]);
 
   useEffect(() => {
-    setStockBajo(
-      productos.filter((p) => (p.stock || 0) <= (p.stock_minimo || 0)).length
-    );
+    cargarProductos();
+  }, [cargarProductos]); 
+
+ 
+  useEffect(() => {
+    setStockBajo(productos.filter((p) => (p.stock || 0) <= (p.stock_minimo || 0)).length);
     setSinStock(productos.filter((p) => (p.stock || 0) <= 0).length);
-    setDesactivados(productos.filter((p) => !p.activo).length);
-    setProductosActivos(productos.filter((p) => p.activo).length);
+    setDesactivados(productos.filter((p) => !p.estado).length);
+    setProductosActivos(productos.filter((p) => p.estado).length);
   }, [productos]);
 
   return (

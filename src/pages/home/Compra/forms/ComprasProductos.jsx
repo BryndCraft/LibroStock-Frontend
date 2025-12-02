@@ -1,8 +1,8 @@
-import { motion } from "framer-motion"; // Quita AnimatePresence de aquí
+import { motion } from "framer-motion";
 import CustomSelect from "../../../../components/utils/CustomSelect";
 import { useProveedor } from "../../../../context/ProveedorContext";
 import { useProductos } from "../../../../context/ProductosContext";
-import { useState } from "react";
+import { useState, useMemo, useCallback } from "react"; // Importar useMemo y useCallback
 import { useCategorias } from "../../../../context/CategoriasContext";
 import { Search, ArrowBack } from "@mui/icons-material";
 import { useInventario } from "../../Inventory/hooks/useInventario";
@@ -17,25 +17,86 @@ export default function ComprasProductos({
   setPaso,
 }) {
   const { handleGuardarCompra } = useCompra();
-  const { proveedores } = useProveedor();
+  // No necesitamos proveedores aquí si no se usa en el render
   const { productos } = useProductos();
   const { categorias } = useCategorias();
-  const [filtroCategoria, setFiltroCategoria] = useState();
-  const [filtroStock, setFiltroStock] = useState();
+  const [filtroCategoria, setFiltroCategoria] = useState("");
+  const [filtroStock, setFiltroStock] = useState("");
+  const [busqueda, setBusqueda] = useState(""); // Estado para el input de búsqueda
   const [abrirProductosAgregados, setAbrirProductosAgregados] = useState(false);
   const { obtenerNombreCategoria } = useInventario();
 
-  const productosFiltrados = productos.filter(
-    (p) => p.estado && p.proveedor_id === formData.proveedor_id
-  );
+  // --- OPTIMIZACIÓN CRÍTICA: useMemo ---
+  // Esto evita que el filtro corra cada vez que react renderiza por cualquier cosa
+  const productosFiltrados = useMemo(() => {
+    return productos.filter((p) => {
+      // Filtro base
+      if (!p.estado || p.proveedor_id !== formData.proveedor_id) return false;
+      
+      // Filtro Categoría
+      if (filtroCategoria && p.categoria_id.toString() !== filtroCategoria) return false;
+
+      // Filtro Stock
+      if (filtroStock === "sin-stock" && p.stock > 0) return false;
+      if (filtroStock === "con-stock" && p.stock <= 0) return false;
+      if (filtroStock === "stock-bajo" && p.stock > 10) return false; // Ejemplo de umbral
+
+      // Filtro Búsqueda (Texto)
+      if (busqueda && !p.nombre.toLowerCase().includes(busqueda.toLowerCase())) return false;
+
+      return true;
+    });
+  }, [productos, formData.proveedor_id, filtroCategoria, filtroStock, busqueda]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const comprasDatos = {
-      ...formData,
-    };
+    const comprasDatos = { ...formData };
     handleGuardarCompra(comprasDatos, setAbrirFormulario);
   };
+
+  // Función auxiliar para agregar producto
+  const handleAgregarProducto = useCallback((prod) => {
+      const existe = formData.productos?.some((p) => p.producto_id === prod.id); // Ojo: verifica si usas 'id' o 'producto_id'
+      
+      if (existe) {
+        Swal.fire({
+          icon: "info",
+          title: "Producto ya agregado",
+          text: `${prod.nombre} ya está en la lista`,
+          timer: 1500,
+          showConfirmButton: false
+        });
+        return;
+      }
+
+      setFormData((prev) => ({
+        ...prev,
+        productos: [
+          ...(prev.productos || []),
+          {
+            producto_id: prod.id,
+            nombre: prod.nombre,
+            precio: prod.precio, // Precio de venta (referencia)
+            stock: prod.stock,
+            cantidad: 1, // Inicializar en 1
+            costo_total: 0 // Inicializar
+          },
+        ],
+      }));
+
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+      });
+      
+      Toast.fire({
+        icon: 'success',
+        title: 'Agregado'
+      });
+  }, [formData.productos, setFormData]);
 
   return (
     <div>
@@ -45,153 +106,121 @@ export default function ComprasProductos({
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
-        <motion.div className="bg-white rounded-xl shadow-lg w-full h-[90vh] max-w-[80vw] overflow-y-auto p-4">
-          <form className="p-6 space-y-4 h-full" onSubmit={handleSubmit}>
-            <button
-              className="hover:rounded-full hover:text-white rounded-full p-3 hover:bg-gray-600/60 cursor-pointer flex items-center gap-2"
-              onClick={() => setPaso(1)}
-            >
-              <ArrowBack fontSize="large" />
-              <span className="text-3xl font-poppins">Retroceder</span>
-            </button>
-            <h1 className="font-bold text-3xl">Registrar Nueva Compra</h1>
-            <div className="flex justify-between">
-              <h3 className="font-light text-2xl">
-                Ingrese los datos de la factura y los productos adquiridos
-              </h3>
-              <button
-                className="bg-blue-600 rounded-2xl px-4 py-3 text-white font-poppins cursor-pointer hover:bg-blue-900 relative"
-                type="button"
-                onClick={() => {
-                  formData.productos?.length == 0
-                    ? Swal.fire({
-                        title: "Lo lamento",
-                        text: "No hay productos Agregados",
-                        icon: "info",
-                        confirmButtonText: "Aceptar",
-                      })
-                    : setAbrirProductosAgregados(true);
-                }}
-              >
-                <span>Ver productos Agregados</span>
-
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                  {formData.productos?.length || 0}
+        <div className="bg-white rounded-xl shadow-lg w-full h-[90vh] max-w-[80vw] overflow-y-auto p-4 flex flex-col"> 
+          {/* Cambié motion.div por div normal en el contenedor interno para reducir carga de animación */}
+          
+          <form className="p-6 space-y-4 h-full flex flex-col" onSubmit={handleSubmit}>
+            {/* Header */}
+            <div className="flex justify-between items-start">
+                <div>
+                    <button
+                    className="hover:rounded-full hover:text-white rounded-full p-2 mb-2 hover:bg-gray-600/60 cursor-pointer flex items-center gap-2 transition-colors"
+                    onClick={() => setPaso(1)}
+                    type="button"
+                    >
+                    <ArrowBack />
+                    <span className="font-poppins font-medium">Retroceder</span>
+                    </button>
+                    <h1 className="font-bold text-3xl">Selección de Productos</h1>
                 </div>
-              </button>
+              
+                <button
+                    className="bg-blue-600 rounded-xl px-4 py-2 text-white font-poppins hover:bg-blue-700 relative transition-colors shadow-md"
+                    type="button"
+                    onClick={() => {
+                    formData.productos?.length === 0
+                        ? Swal.fire({ title: "Lista vacía", text: "No has agregado productos", icon: "info" })
+                        : setAbrirProductosAgregados(true);
+                    }}
+                >
+                    <span>Ver carrito</span>
+                    {formData.productos?.length > 0 && (
+                        <span className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm border border-white">
+                        {formData.productos.length}
+                        </span>
+                    )}
+                </button>
             </div>
 
-            <div className="overflow-y-auto w-full h-[100vh] border-gray-700/60 border rounded-2xl shadow-lg p-5 max-h-[55vh]">
-              <div className="flex gap-5 items-center">
-                <div className="bg-white/50 border border-slate-800/40 rounded-2xl p-3 shadow-sm flex items-center gap-3 w-[60%]">
-                  <Search className="text-slate-400" />
+            {/* Filtros */}
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-200 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="flex items-center bg-white border border-gray-300 rounded-lg px-3 py-2 focus-within:ring-2 focus-within:ring-blue-500 transition-shadow">
+                  <Search className="text-gray-400 mr-2" />
                   <input
                     type="text"
-                    className="w-full bg-transparent outline-none text-slate-800 placeholder-slate-400"
-                    placeholder="Realizar una Búsqueda por Nombre o Categoria"
+                    className="w-full bg-transparent outline-none text-gray-700 placeholder-gray-400"
+                    placeholder="Buscar producto..."
+                    value={busqueda}
+                    onChange={(e) => setBusqueda(e.target.value)}
                   />
                 </div>
 
                 <CustomSelect
                   label="Categorías"
                   options={[
-                    { value: "", label: "Todas las categorías" },
+                    { value: "", label: "Todas" },
                     ...categorias.map((cat) => ({
                       value: cat.id.toString(),
                       label: cat.nombre,
                     })),
                   ]}
                   value={filtroCategoria}
-                  width={200}
+                  width="100%"
                   onChange={setFiltroCategoria}
                   required={false}
                 />
 
                 <CustomSelect
-                  label="Estado de stock"
+                  label="Stock"
                   options={[
+                    { value: "", label: "Todos" },
                     { value: "con-stock", label: "Con stock" },
                     { value: "sin-stock", label: "Sin stock" },
                     { value: "stock-bajo", label: "Stock bajo" },
                   ]}
                   value={filtroStock}
                   onChange={setFiltroStock}
-                  margin={0}
-                  width={200}
+                  width="100%"
                   required={false}
                 />
-              </div>
+            </div>
 
-              <div className="mt-5 border border-gray-300 rounded-xl overflow-hidden">
+            {/* Tabla */}
+            <div className="flex-1 overflow-hidden border border-gray-200 rounded-xl shadow-inner bg-white flex flex-col">
+              <div className="overflow-y-auto flex-1">
                 <table className="w-full text-left border-collapse">
-                  <thead className="bg-gray-100 text-gray-700">
+                  <thead className="bg-gray-100 text-gray-700 sticky top-0 z-10 shadow-sm">
                     <tr>
-                      <th className="p-3">Producto</th>
-                      <th className="p-3">Categoría</th>
-                      <th className="p-3">Stock</th>
-                      <th className="p-3">Precio Venta</th>
-                      <th className="p-3 text-center">Acción</th>
+                      <th className="p-3 font-semibold text-sm uppercase">Producto</th>
+                      <th className="p-3 font-semibold text-sm uppercase">Categoría</th>
+                      <th className="p-3 font-semibold text-sm uppercase">Stock Actual</th>
+                      <th className="p-3 font-semibold text-sm uppercase text-center">Acción</th>
                     </tr>
                   </thead>
 
-                  <tbody className="divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-100">
                     {productosFiltrados.length === 0 ? (
                       <tr>
-                        <td
-                          colSpan="5"
-                          className="p-4 text-center text-gray-400"
-                        >
-                          No hay productos disponibles De este Proveedor
+                        <td colSpan="4" className="p-8 text-center text-gray-400">
+                           No se encontraron productos coincidentes.
                         </td>
                       </tr>
                     ) : (
                       productosFiltrados.map((prod) => (
-                        <tr key={prod.producto_id} className="hover:bg-gray-50">
-                          <td className="p-3 font-medium">{prod.nombre}</td>
-                          <td className="p-3">
+                        <tr key={prod.id} className="hover:bg-blue-50 transition-colors duration-150">
+                          <td className="p-3 font-medium text-gray-800">{prod.nombre}</td>
+                          <td className="p-3 text-gray-600 text-sm">
                             {obtenerNombreCategoria(prod.categoria_id)}
                           </td>
-                          <td className="p-3">{prod.stock}</td>
-                          <td className="p-3">${prod.precio}</td>
+                          <td className="p-3">
+                             <span className={`px-2 py-1 rounded-full text-xs font-bold ${prod.stock <= 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'}`}>
+                                {prod.stock}
+                             </span>
+                          </td>
                           <td className="p-3 text-center">
                             <button
-                              onClick={() => {
-                                const existe = formData.productos?.some(
-                                  (p) => p.id === prod.id
-                                );
-                                if (existe) {
-                                  Swal.fire({
-                                    icon: "info",
-                                    title: "Producto ya agregado",
-                                    text: `${prod.nombre} ya está en la lista`,
-                                  });
-                                  return; // 🔴 Retornamos inmediatamente
-                                }
-
-                                // 2️⃣ Actualizar el estado
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  productos: [
-                                    ...(prev.productos || []),
-                                    {
-                                      producto_id: prod.id,
-                                      nombre: prod.nombre,
-                                      precio: prod.precio,
-                                      stock: prod.stock,
-                                    },
-                                  ],
-                                }));
-
-                                // 3️⃣ Mostrar alerta de éxito
-                                Swal.fire({
-                                  icon: "success",
-                                  title: "Producto agregado",
-                                  text: `${prod.nombre} se agregó correctamente`,
-                                  timer: 1500,
-                                  showConfirmButton: false,
-                                });
-                              }}
-                              className="px-3 py-1 bg-blue-600 text-white rounded-lg hover:bg-blue-700 cursor-pointer"
+                              onClick={() => handleAgregarProducto(prod)}
+                              className="px-4 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 active:scale-95 transition-all shadow-sm"
                               type="button"
                             >
                               Agregar
@@ -205,27 +234,28 @@ export default function ComprasProductos({
               </div>
             </div>
 
-            {/* Botones */}
-            <div className="flex justify-end gap-3 pt-4 ">
+            {/* Footer Buttons */}
+            <div className="flex justify-end gap-3 pt-2">
               <button
                 type="button"
-                className="px-6 py-3 bg-gray-500 text-white rounded"
+                className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 onClick={() => setAbrirFormulario(false)}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-6 py-3 bg-blue-600 text-white rounded hover:bg-blue-800 cursor-pointer"
+                className="px-6 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-md transition-all font-medium"
               >
-                Guardar Compra
+                Finalizar Compra
               </button>
             </div>
           </form>
-        </motion.div>
+        </div>
       </motion.div>
+      
       {abrirProductosAgregados && (
-        <div className="h-screen bg-black/50 w-full z-90 relative">
+        <div className="fixed inset-0 z-[60] bg-black/50 flex justify-center items-center">
           <ModalProductosAgregados
             formData={formData}
             setFormData={setFormData}

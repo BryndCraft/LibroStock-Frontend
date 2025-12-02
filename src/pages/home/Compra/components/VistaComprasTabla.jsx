@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { useCompras } from "../../../../context/ComprasContext";
 import { useProveedor } from "../../../../context/ProveedorContext";
 import {
@@ -8,14 +7,16 @@ import {
   CalendarToday as CalendarIcon,
   AttachMoney as MoneyIcon,
   Payment as PaymentIcon,
-  TrendingUp as TrendingIcon,
-  Inventory as InventoryIcon,
   LocalShipping as ShippingIcon,
 } from "@mui/icons-material";
+import { useState } from "react";
+import { ModalVerDetalles } from "./ModalVerDetalles";
 
 export function VistaComprasTabla() {
   const { compras } = useCompras();
   const { proveedores } = useProveedor();
+  const [verDetalles, setVerDetalles] = useState(false);
+  const [compraSeleccionada, setCompraSeleccionada] = useState(null);
 
   const formatearFecha = (fechaBase) => {
     if (!fechaBase) return "No tiene fecha";
@@ -27,7 +28,7 @@ export function VistaComprasTabla() {
         year: "numeric",
       });
     } catch (error) {
-      return fechaBD;
+      return fechaBase || "Fecha inválida";
     }
   };
 
@@ -59,114 +60,14 @@ export function VistaComprasTabla() {
     }
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const rowVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.4,
-      },
-    },
-  };
-
-  const statsVariants = {
-    hidden: { scale: 0.8, opacity: 0 },
-    visible: {
-      scale: 1,
-      opacity: 1,
-      transition: {
-        duration: 0.5,
-      },
-    },
-  };
-
-  // Calcular estadísticas
-  const totalCompras = compras.length;
-  const totalMonto = compras.reduce(
-    (sum, compra) => sum + (compra.total || 0),
-    0
-  );
-  const comprasEsteMes = compras.filter((compra) => {
-    const fechaCompra = new Date(compra.create_date);
-    const hoy = new Date();
-    return (
-      fechaCompra.getMonth() === hoy.getMonth() &&
-      fechaCompra.getFullYear() === hoy.getFullYear()
-    );
-  }).length;
-
   return (
-    <div className="space-y-6">
-      {/* Estadísticas */}
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-3 gap-6"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <motion.div
-          variants={statsVariants}
-          className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-lg"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-blue-100 text-sm font-medium">Total Compras</p>
-              <p className="text-3xl font-bold mt-2">{totalCompras}</p>
-            </div>
-            <ReceiptIcon className="text-white opacity-80" fontSize="large" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          variants={statsVariants}
-          className="bg-gradient-to-r from-green-500 to-green-600 rounded-2xl p-6 text-white shadow-lg"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-green-100 text-sm font-medium">Monto Total</p>
-              <p className="text-3xl font-bold mt-2">
-                {formatCurrency(totalMonto)}
-              </p>
-            </div>
-            <TrendingIcon className="text-white opacity-80" fontSize="large" />
-          </div>
-        </motion.div>
-
-        <motion.div
-          variants={statsVariants}
-          className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-purple-100 text-sm font-medium">Este Mes</p>
-              <p className="text-3xl font-bold mt-2">{comprasEsteMes}</p>
-            </div>
-            <InventoryIcon className="text-white opacity-80" fontSize="large" />
-          </div>
-        </motion.div>
-      </motion.div>
-
-      {/* Tabla */}
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden"
-      >
+    <div className="h-full flex flex-col">
+      {/* Tabla con scroll interno */}
+      <div className="flex-1 overflow-auto h-full">
         <table className="w-full">
-          <thead>
-            <tr className="bg-gradient-to-r from-gray-50 to-blue-50/30 border-b border-gray-200">
+          {/* Cabecera fija */}
+          <thead className="sticky top-0 bg-gradient-to-r from-gray-50 to-blue-50/30 border-b border-gray-200 z-10">
+            <tr>
               <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
                 <div className="flex items-center space-x-2">
                   <ReceiptIcon fontSize="small" />
@@ -208,13 +109,13 @@ export function VistaComprasTabla() {
               </th>
             </tr>
           </thead>
+
+          {/* Cuerpo de la tabla */}
           <tbody className="divide-y divide-gray-100">
             {compras.map((compra) => (
               <tr
                 key={compra.id}
-                variants={rowVariants}
-                className="hover:bg-blue-50/30 transition-all duration-200 group cursor-pointer"
-
+                className="hover:bg-blue-50/30 transition-colors duration-150 group cursor-pointer"
               >
                 <td className="p-6 whitespace-nowrap">
                   <div className="flex items-center space-x-3">
@@ -259,30 +160,32 @@ export function VistaComprasTabla() {
                 <td className="p-6 whitespace-nowrap">
                   <div className="flex items-center space-x-2">
                     <MoneyIcon className="text-green-500" fontSize="small" />
-                    <span className="font-bold text-green-600 text-lg">
+                    <span className="font-bold text-green-600">
                       {formatCurrency(compra.total)}
                     </span>
                   </div>
                 </td>
                 <td className="p-6 whitespace-nowrap">
                   <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getMetodoPagoColor(
+                    className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium border ${getMetodoPagoColor(
                       compra.metodo_pago
                     )}`}
                   >
-                    <PaymentIcon className="mr-1" fontSize="small" />
+                    <PaymentIcon className="mr-1.5" fontSize="small" />
                     {compra.metodo_pago || "No especificado"}
                   </span>
                 </td>
                 <td className="p-6 whitespace-nowrap">
-                  <motion.button
-                    className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-sm group"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                  <button
+                    onClick={() => {
+                      setCompraSeleccionada(compra);
+                      setVerDetalles(true);
+                    }}
+                    className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white text-sm font-medium rounded-lg transition-all duration-200 shadow-sm"
                   >
                     <VisibilityIcon className="mr-2" fontSize="small" />
                     Ver Detalles
-                  </motion.button>
+                  </button>
                 </td>
               </tr>
             ))}
@@ -291,25 +194,28 @@ export function VistaComprasTabla() {
 
         {/* Estado vacío */}
         {compras.length === 0 && (
-          <motion.div
-            className="text-center py-16"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="w-24 h-24 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <ShippingIcon className="text-gray-400" fontSize="large" />
+          <div className="flex flex-col items-center justify-center h-full min-h-[400px]">
+            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+              <ShippingIcon className="text-gray-400" sx={{ fontSize: 48 }} />
             </div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <h3 className="text-2xl font-semibold text-gray-900 mb-3">
               No hay compras registradas
             </h3>
-            <p className="text-gray-500 max-w-md mx-auto">
+            <p className="text-gray-500 text-center max-w-md">
               Aún no se han registrado compras en el sistema. Las compras
               aparecerán aquí una vez que sean agregadas.
             </p>
-          </motion.div>
+          </div>
         )}
-      </motion.div>
+      </div>
+
+      {/* Modal de detalles */}
+      {verDetalles && compraSeleccionada && (
+        <ModalVerDetalles
+          compra={compraSeleccionada}
+          setVerDetalles={setVerDetalles}
+        />
+      )}
     </div>
   );
 }

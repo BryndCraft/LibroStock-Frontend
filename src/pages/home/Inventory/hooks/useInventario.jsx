@@ -58,6 +58,7 @@ export const useInventario = () => {
   };
 
   const handleActivarCategoria = async (categoriaId) => {
+    console.log(categoriaId)
     const result = await Swal.fire({
       title: `¿Activar la Categoria?`,
       icon: "warning",
@@ -83,6 +84,7 @@ export const useInventario = () => {
   };
 
   const handleEliminarProducto = async (productoId) => {
+
     const result = await Swal.fire({
       title: `¿Desactivar el producto?`,
       icon: "warning",
@@ -153,6 +155,7 @@ export const useInventario = () => {
   };
 
   const handleEliminarCategoria = async (categoriaId) => {
+    
     const result = await Swal.fire({
       title: `¿Eliminar la categoria?`,
       text: "Esta acción no se puede deshacer",
@@ -242,18 +245,18 @@ export const useInventario = () => {
 
   // Filtrado de productos
   const productosFiltrados = productos.filter((p) => {
-  // 1️⃣ Filtrar por búsqueda (nombre, código o categoría)
+  //  Filtrar por búsqueda (nombre, código o categoría)
   const termino = filtroBusqueda.toLowerCase();
   const coincideBusqueda =
     p.nombre?.toLowerCase().includes(termino) ||
     p.codigo_barras?.toLowerCase().includes(termino) ||
     obtenerNombreCategoria(p.categoria_id)?.toLowerCase().includes(termino);
 
-  // 2️⃣ Filtrar por categoría seleccionada
+  // Filtrar por categoría seleccionada
   const coincideCategoria =
     !filtroCategoria || p.categoria_id === parseInt(filtroCategoria);
 
-  // 3️⃣ Filtrar por stock
+  // 3 Filtrar por stock
   const coincideStock = (() => {
     switch (filtroStock) {
       case "con-stock":

@@ -1,18 +1,16 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from "react";
 import { searchCompras, createCompra } from "../apis/compras.api";
 import { useProductos } from "./ProductosContext";
-// Creamos el contexto
+
 const ComprasContext = createContext();
 
-// Provider
 export const ComprasProvider = ({ children }) => {
   const [compras, setCompras] = useState([]);
   const [loading, setLoading] = useState(false);
+  const { cargarProductos, setProductos } = useProductos(); // Añadido setProductos
 
-  const { setProductos } = useProductos();
-
-  // Función para cargar compras, opcionalmente filtradas por producto_id
-  const cargarCompras = async (producto_id = "") => {
+  // Función para cargar todas las compras
+  const cargarCompras = useCallback(async (producto_id = "") => {
     try {
       setLoading(true);
       const response = await searchCompras(producto_id);
@@ -22,58 +20,54 @@ export const ComprasProvider = ({ children }) => {
     } finally {
       setLoading(false);
     }
-  };
-  const actualizarStock = (productosCompra) => {
-    setProductos((prevProductos) =>
-      prevProductos.map((prod) => {
-        const actualizado = productosCompra.find(
-          (p) => p.producto_id === prod.id
-        );
-        if (actualizado) {
-          return {
-            ...prod,
-            stock: (prod.stock || 0) + (actualizado.cantidad || 0),
-          };
-        }
-        return prod;
-      })
-    );
-  };
+  }, []);
+
   // Función para crear una compra
-  const agregarCompra = async (compra) => {
+  const agregarCompra = useCallback(async (compra) => {
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await createCompra(compra);
 
-      // Actualizamos solo los productos de la compra
-      actualizarStock(compra.productos);
-      cargarCompras();
+      if (response && response.id) {
+        await cargarProductos();
+        
+        setProductos([]); 
+        setTimeout(async () => {
+          await cargarProductos();
+        }, 100);
+      }
 
-      return response;
+      // Actualizar lista de compras
+      await cargarCompras();
+      
+      return {
+        ...response,
+        recargado: true // Flag para indicar que se recargaron productos
+      };
     } catch (error) {
       console.error("Error creando compra:", error);
       throw error;
     } finally {
       setLoading(false);
     }
-  };
+  }, [cargarProductos, cargarCompras, setProductos]);
 
   useEffect(() => {
     cargarCompras();
-  }, []);
+  }, [cargarCompras]);
+
+  const value = useMemo(() => ({
+    compras,
+    loading,
+    cargarCompras,
+    agregarCompra,
+  }), [compras, loading, cargarCompras, agregarCompra]);
 
   return (
-    <ComprasContext.Provider
-      value={{
-        compras,
-        cargarCompras,
-        agregarCompra,
-      }}
-    >
+    <ComprasContext.Provider value={value}>
       {children}
     </ComprasContext.Provider>
   );
 };
 
-// Hook para usar el contexto
 export const useCompras = () => useContext(ComprasContext);

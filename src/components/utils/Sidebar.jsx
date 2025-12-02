@@ -37,25 +37,25 @@ export default function Sidebar() {
     { name: "Proveedores", path: "/proveedores", icon: <SupervisedUserCircleIcon className="text-xl" /> },
     { name: "Compras", path: "/compras", icon: <LibraryAdd className="text-xl" /> },
     { name: "Prueba", path: "/prueba", icon: <LibraryAdd className="text-xl" />},
-    { name: "Kardex", path: "/kardex", icon: <LibraryAdd className="text-xl" />}
+    { name: "Kardex", path: "/kardex", icon: <LibraryAdd />}
   ];
 
   return (
-    <div className="w-80 h-full bg-gradient-to-b from-slate-800 to-slate-900 flex flex-col absolute shadow-xl rounded-r-3xl font-poppins z-30 overflow-y-auto">
+    <div className="w-80  h-full bg-gradient-to-b from-slate-800 to-slate-900 flex flex-col absolute shadow-xl rounded-r-3xl font-poppins z-30 overflow-y-auto">
       
       {/* Header */}
-      <div className="w-full py-8 flex flex-col items-center border-b border-slate-600 bg-slate-700/50 rounded-tr-3xl">
-        <div className="bg-white rounded-2xl w-28 h-28 p-4 select-none shadow-lg mb-5 transition-transform duration-300 hover:scale-105">
+      <div className="w-full py-8 flex flex-col items-center border-b border-slate-600 bg-slate-700/50 rounded-tr-3xl md:py-4">
+        <div className="bg-white rounded-2xl w-28 h-28 p-4 select-none shadow-lg mb-5 transition-transform duration-300 hover:scale-105 md:w-24 md:h-24">
           <img src={Logo} className="w-full h-full object-contain" alt="LibroStock Logo" />
         </div>
-        <h2 className="text-white text-2xl mb-2 font-poppinsBold">LibroStock</h2>
+        <h2 className="text-white text-2xl mb-2 font-poppinsBold md:text-lg">LibroStock</h2>
         <p className="text-slate-300 text-sm font-poppins">Tu biblioteca al día</p>
       </div>
 
       {/* Perfil del usuario */}
       <Link 
         to="/perfil" 
-        className="px-6 py-5 border-b border-slate-600 hover:bg-slate-700/60 transition-all duration-300 group"
+        className="px-6 py-5 md:px-4 md:py-3 border-b border-slate-600 hover:bg-slate-700/60 transition-all duration-300 group"
       >
         <div className="flex items-center">
           <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg border-2 border-white/20 group-hover:border-white/40 transition-colors">
@@ -78,19 +78,19 @@ export default function Sidebar() {
 
       {/* Navegación principal */}
       <div className="flex-1 py-6 px-5">
-        <h4 className="text-slate-400 text-xs uppercase tracking-wider mb-5 px-2 font-poppinsBold">
+        <h4 className="text-slate-400 text-xs uppercase tracking-wider mb-5 px-2 font-poppinsBold ">
           Navegación Principal
         </h4>
-        <div className="space-y-2">
+        <div className="space-y-2 md:space-y-1">
           {links.map((link) => {
             const isActive = location.pathname === link.path;
             return (
               <Link
                 key={link.name}
                 to={link.path}
-                className={`flex items-center text-slate-300 py-4 px-5 rounded-xl transition-all duration-300 group relative overflow-hidden font-poppinsBold ${
+                className={`flex items-center text-slate-300 py-4 px-5 md:py-2 md:px-3 rounded-xl transition-all duration-300 group relative overflow-hidden font-poppinsBold ${
                   isActive
-                    ? "bg-blue-500/20 text-white border-l-4 border-blue-400 shadow-md"
+                    ? "bg-blue-500/20 text-white  border-l-4 border-blue-400 shadow-md"
                     : "hover:bg-slate-700/60 hover:text-white hover:translate-x-1"
                 }`}
               >
@@ -105,7 +105,7 @@ export default function Sidebar() {
                   {link.icon}
                 </div>
                 
-                <span className="text-lg relative z-10">{link.name}</span>
+                <span className="text-lg relative z-10 md:text-xs">{link.name}</span>
                 
                 {/* Indicador de página activa */}
                 {isActive && (
@@ -118,14 +118,14 @@ export default function Sidebar() {
       </div>
 
       {/* Botón de cerrar sesión */}
-      <div className="p-6 border-t border-slate-600 bg-slate-700/30 rounded-br-3xl">
+      <div className="p-6 md:py-3 border-t border-slate-600 bg-slate-700/30 rounded-br-3xl">
         <button
           type="button"
           onClick={async () => await handleLogout()}
-          className="flex items-center justify-center w-full bg-gradient-to-r from-red-500/90 to-red-600/90 hover:from-red-600 hover:to-red-700 text-white py-4 px-5 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] group font-poppinsBold"
+          className="flex items-center justify-center w-full bg-gradient-to-r from-red-500/90 to-red-600/90 hover:from-red-600 hover:to-red-700 text-white py-4 px-5 rounded-xl transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.02] group font-poppinsBold md:py-2 md:px-3 cursor-pointer"
         >
           <LogoutIcon className="mr-3 transition-transform duration-300 group-hover:translate-x-1" />
-          <span className="text-lg">Cerrar Sesión</span>
+          <span className="text-lg md:text-xs">Cerrar Sesión</span>
         </button>
       </div>
     </div>

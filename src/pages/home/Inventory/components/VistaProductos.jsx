@@ -51,94 +51,110 @@ export default function VistaProductos({ setVista }) {
     setFiltroBusqueda(e.target.value);
   };
 
+  const productosFiltradosFinal = productosFiltrados.filter((p) =>
+    productosInactivos ? !p.estado : p.estado
+  );
 
-const productosFiltradosFinal = productosFiltrados.filter((p) =>
-  productosInactivos ? !p.estado : p.estado
-);
-
-  
   return (
-    <AnimatedContainer className="min-h-screen w-full ml-75">
-      {/*Header*/}
-      <div className="w-full h-40 p-12 bg-green-500">
-        <div className="flex justify-between w-full">
+    <AnimatedContainer className="h-screen w-full md:ml-75 flex flex-col">
+      {/* HEADER */}
+      <div className="w-full h-28 md:h-30 md:p-12 p-6 bg-green-500 md:flex md:items-center">
+        <div className="flex flex-col lg:text-sm md:flex-row md:justify-between w-full gap-5">
           <div>
-            <div className="font-bold text-white text-3xl">
+            <div className="font-bold text-white  text-2xl md:text-xl">
               Gestión de Inventario
             </div>
-            <div className="font-light text-white text-2xl">
+            <div className="font-light text-white text-lg">
               Administra y organiza los productos de la librería
             </div>
           </div>
-          <div className="flex gap-3">
-            <button
-              className="px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-2xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 flex items-center gap-3 font-semibold border border-purple-200/30 cursor-pointer"
-              onClick={() => setVista("categorias")}
-            >
-              <Category className="text-lg" />
-              <span>Ver Categorias</span>
-            </button>
 
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+            <button className="w-full sm:w-auto px-5 py-3 md:px-2 md:py-1 lg:px-2 lg:py-1 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-2xl hover:from-purple-600 hover:to-indigo-700 transition-all duration-300 flex items-center justify-center gap-2 font-semibold border border-purple-200/30 cursor-pointer" onClick={()=> setVista('categorias')}>
+              <Category className="text-lg md:text-sm lg:text-sm" />
+              <span className="text-base md:text-sm lg:text-sm">
+                Ver Categorias
+              </span>
+            </button>
             <button
-              className="px-6 py-3 bg-gradient-to-r from-yellow-500 to-yellow-600 text-white rounded-2xl hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 flex items-center gap-3 font-semibold border border-yellow-200/30 cursor-pointer"
               onClick={handleNuevoProducto}
+              className="
+    flex w-full sm:w-auto 
+    px-5 py-3 
+    md:px-2 md:py-1 
+    lg:px-2 lg:py-1
+    bg-gradient-to-r from-yellow-500 to-yellow-600 
+    text-white rounded-2xl 
+    hover:from-yellow-600 hover:to-yellow-700 
+    transition-all duration-300 
+    items-center justify-center gap-2 
+    font-semibold border border-yellow-200/30 
+    cursor-pointer
+  "
             >
-              <Add className="text-lg" />
-              <span>Añadir Producto</span>
+              <Add className="text-lg md:text-sm lg:text-sm" />
+              <span className="text-base md:text-sm lg:text-sm">
+                Añadir Producto
+              </span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Barra de Busqueda y de Categorias */}
-      <div className="rounded-tl-3xl ml-5 relative -my-5 bg-white p-10">
-        <div className="bg-white/50 border h-30 border-slate-200/40 rounded-2xl p-3 shadow-sm flex items-center gap-3 mb-10">
-          <div className="bg-white/50 border border-slate-200/40 rounded-2xl p-3 shadow-sm flex items-center gap-3 w-[30%]">
+      {/* CONTENIDO */}
+      <div className="flex-1 overflow-y-auto rounded-tl-3xl md:ml-5 bg-white p-5 sm:p-8 md:p-10 flex flex-col">
+        {/* BARRA FILTROS */}
+        <div className="bg-white/50 border border-slate-200/40 rounded-2xl p-3 shadow-sm flex flex-col lg:flex-row items-center gap-4 mb-5">
+          {/* BUSQUEDA */}
+          <div className="bg-white/50 border border-slate-200/40 rounded-2xl px-3 py-2 shadow-sm flex items-center gap-3 w-full lg:w-[30%]">
             <Search className="text-slate-400" />
             <input
               type="text"
               className="w-full bg-transparent outline-none text-slate-800 placeholder-slate-400"
-              placeholder="Realizar una Búsqueda por Nombre o Categoria"
+              placeholder="Buscar por Nombre o Categoría"
               onChange={handleBusquedaChange}
             />
           </div>
 
-          {/*Filtro de Categoria*/}
-          <CustomSelect
-            label="Categorías"
-            options={[
-              { value: "", label: "Todas las categorías" },
-              ...categorias.map((cat) => ({
-                value: cat.id.toString(),
-                label: cat.nombre,
-              })),
-            ]}
-            value={filtroCategoria}
-            width={200}
-            onChange={setFiltroCategoria}
-            required={false}
-          />
+          {/* SELECT CATEGORIA */}
+          <div className="md:w-60">
+            <CustomSelect
+              label="Categorías"
+              options={[
+                { value: "", label: "Todas las categorías" },
+                ...categorias.map((cat) => ({
+                  value: cat.id.toString(),
+                  label: cat.nombre,
+                })),
+              ]}
+              value={filtroCategoria}
+              width="100%"
+              onChange={setFiltroCategoria}
+              required={false}
+            />
+          </div>
 
-          {/*Filtro de Estado de Stock*/}
-          <CustomSelect
-            label="Estado de stock"
-            options={[
-              { value: "", label: "Todos" },
-              { value: "con-stock", label: "Con stock" },
-              { value: "sin-stock", label: "Sin stock" },
-              { value: "stock-bajo", label: "Stock bajo" },
-            ]}
-            value={filtroStock}
-            onChange={setFiltroStock}
-            margin={0}
-            width={200}
-            required={false}
-          />
+          {/* SELECT STOCK */}
+          <div className="md:w-60 ">
+            <CustomSelect
+              label="Estado de stock"
+              options={[
+                { value: "", label: "Todos" },
+                { value: "con-stock", label: "Con stock" },
+                { value: "sin-stock", label: "Sin stock" },
+                { value: "stock-bajo", label: "Stock bajo" },
+              ]}
+              value={filtroStock}
+              onChange={setFiltroStock}
+              width="100%"
+              required={false}
+            />
+          </div>
 
-          {/*Boton para quitar los filtros*/}
+          {/* QUITAR FILTROS */}
           <AnimatedButton
             onClick={limpiarFiltros}
-            className="whitespace-nowrap px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 font-medium cursor-pointer"
+            className="w-full sm:w-auto whitespace-nowrap px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-2xl hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 font-medium cursor-pointer"
           >
             <AnimatedIcon>
               <Clear className="text-lg" />
@@ -146,14 +162,14 @@ const productosFiltradosFinal = productosFiltrados.filter((p) =>
             Quitar Filtros
           </AnimatedButton>
 
-          {/* Botones de Vista */}
-          <div className="flex gap-3">
+          {/* VISTAS */}
+          <div className="flex w-full sm:w-auto gap-3">
             <AnimatedButton
               onClick={() => setModoVisualizacion("tabla")}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border transition-all cursor-pointer ${
                 modoVisualizacion === "tabla"
                   ? "bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-blue-500 shadow-lg"
-                  : "bg-white/70 text-slate-700 border-slate-200/80 hover:bg-white hover:border-slate-300 backdrop-blur-sm"
+                  : "bg-white/70 text-slate-700 border-slate-200/80 hover:bg-white hover:border-slate-300"
               }`}
             >
               <AnimatedIcon>
@@ -164,10 +180,10 @@ const productosFiltradosFinal = productosFiltrados.filter((p) =>
 
             <AnimatedButton
               onClick={() => setModoVisualizacion("cards")}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border transition-all cursor-pointer ${
+              className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-3 rounded-2xl border transition-all cursor-pointer ${
                 modoVisualizacion === "cards"
                   ? "bg-gradient-to-r from-blue-500 to-cyan-600 text-white border-blue-500 shadow-lg"
-                  : "bg-white/70 text-slate-700 border-slate-200/80 hover:bg-white hover:border-slate-300 backdrop-blur-sm"
+                  : "bg-white/70 text-slate-700 border-slate-200/80 hover:bg-white hover:border-slate-300"
               }`}
             >
               <AnimatedIcon>
@@ -178,8 +194,9 @@ const productosFiltradosFinal = productosFiltrados.filter((p) =>
           </div>
         </div>
 
-        <div className="mb-5 flex justify-between">
-          <div className="font-bold text-3xl">
+        {/* TITULO + SWITCH */}
+        <div className="mb-5 flex flex-col sm:flex-row justify-between gap-4">
+          <div className="font-bold text-2xl ">
             Número de Productos{" "}
             <span className="text-blue-400">
               {productosInactivos
@@ -187,8 +204,9 @@ const productosFiltradosFinal = productosFiltrados.filter((p) =>
                 : productosFiltrados.filter((p) => p.estado).length}
             </span>
           </div>
+
           <div className="flex items-center gap-3">
-            <span className="font-bold text-xl">
+            <span className="font-bold text-lg">
               Ver Solo Productos Inactivos
             </span>
             <FormControlLabel
@@ -203,27 +221,31 @@ const productosFiltradosFinal = productosFiltrados.filter((p) =>
           </div>
         </div>
 
-        {/*Visualizar en Cards o Table*/}
-        <div className="flex-1 bg-white/50 border border-slate-200/40 rounded-2xl p-5 shadow-sm overflow-hidden">
-          <div className="max-h-[50vh] overflow-y-auto">
-            {modoVisualizacion === "cards" ? (
-              <ProductoCard 
-                mostrar_inactivos={productosInactivos} 
-                handleEditarProducto={handleEditarProducto} 
-                productosFiltrados={productosFiltradosFinal}
-              />
-            ) : (
-              <VistaTabla 
-                mostrar_inactivos={productosInactivos} 
+        {/* LISTA */}
+        <div className="flex-1 bg-white/50 border border-slate-200/40 rounded-2xl p-4 shadow-sm overflow-y-auto">
+          {productosFiltradosFinal.length !== 0 ? (
+            modoVisualizacion === "cards" ? (
+              <ProductoCard
+                mostrar_inactivos={productosInactivos}
                 handleEditarProducto={handleEditarProducto}
                 productosFiltrados={productosFiltradosFinal}
               />
-            )}
-          </div>
+            ) : (
+              <VistaTabla
+                mostrar_inactivos={productosInactivos}
+                handleEditarProducto={handleEditarProducto}
+                productosFiltrados={productosFiltradosFinal}
+              />
+            )
+          ) : (
+            <div className="flex-1 flex items-center justify-center min-h-[200px] text-gray-500 font-medium">
+              No hay productos Disponibles
+            </div>
+          )}
         </div>
       </div>
 
-      {/*Modal de Producto*/}
+      {/* MODAL */}
       <AnimatePresence>
         {mostrarProductoForm && (
           <div className="fixed inset-0 w-full bg-black/70 z-60">

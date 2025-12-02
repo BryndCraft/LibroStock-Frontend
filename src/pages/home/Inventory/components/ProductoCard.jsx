@@ -12,7 +12,7 @@ import { useInventario } from "../hooks/useInventario";
 export function ProductoCard({
   mostrar_inactivos,
   handleEditarProducto,
-  productosFiltrados
+  productosFiltrados,
 }) {
   const { productos } = useProductos();
   const {
@@ -22,7 +22,6 @@ export function ProductoCard({
     getColorStock,
     formatearPrecio,
   } = useInventario();
-
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
@@ -38,7 +37,7 @@ export function ProductoCard({
                 <Inventory2 className="text-white text-xl" />
               </div>
               <span
-                className={`inline-flex items-center px-2 py-1 rounded-full text-xl font-medium border backdrop-blur-sm ${getColorStock(
+                className={`inline-flex items-center px-2 py-1 rounded-full text-xl md:text-sm font-medium border backdrop-blur-sm ${getColorStock(
                   producto
                 )}`}
               >
@@ -48,7 +47,7 @@ export function ProductoCard({
 
             {/* Contenedor principal */}
             <div className="space-y-3 flex-1">
-              <h3 className="font-bold text-slate-800 text-2xl line-clamp-2 group-hover:text-slate-900 transition-colors leading-tight">
+              <h3 className="font-bold text-slate-800 text-2xl md:text-xl line-clamp-2 group-hover:text-slate-900 transition-colors leading-tight">
                 {producto.nombre}
               </h3>
 
@@ -93,11 +92,12 @@ export function ProductoCard({
             <div className="flex gap-2 pt-4 mt-4 border-t border-slate-200/40">
               <button
                 onClick={() => handleEditarProducto(producto)}
-                className="flex-1 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-blue-400/30 flex items-center justify-center gap-1"
+                className="flex-1 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl hover:from-blue-600 hover:to-cyan-700 transition-all duration-200 shadow-lg hover:shadow-xl hover:scale-105 font-semibold text-xs border border-blue-400/30 flex items-center justify-center gap-1 "
               >
-                <Edit className="w-3 h-3" />
+                <Edit />
                 Editar
               </button>
+
               {producto.estado ? (
                 <button
                   onClick={() => handleEliminarProducto(producto.id)}

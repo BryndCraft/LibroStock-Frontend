@@ -1,38 +1,27 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { createVenta } from "../apis/ventas.api";
 import { useProductos } from "./ProductosContext";
+
 const VentasContext = createContext();
 
 // Provider
 export const VentasProvider = ({ children }) => {
   const [ventas, setVentas] = useState([]);
   const [loading, setLoading] = useState(false);
-  const {setProductos} = useProductos();
+  const { setProductos,cargarProductos } = useProductos();
 
+  // Función para actualizar stock solo de los productos vendidos
+  
 
-  const actualizarStock = (productosventa) => {
-    setProductos((prevProductos) =>
-      prevProductos.map((prod) => {
-        const actualizado = productosventa.find(
-          (p) => p.producto_id === prod.id
-        );
-        if (actualizado) {
-          return {
-            ...prod,
-            stock: (prod.stock || 0) + (actualizado.cantidad || 0),
-          };
-        }
-        return prod;
-      })
-    );
-  };
   // Función para crear una venta
   const agregarVenta = async (venta) => {
+    setLoading(true);
     try {
       const response = await createVenta(venta);
 
-      
-      actualizarStock(venta.productos);
+      if (response && response.id) { 
+        cargarProductos();
+      }
 
       return response;
     } catch (error) {
@@ -43,13 +32,13 @@ export const VentasProvider = ({ children }) => {
     }
   };
 
-
   return (
     <VentasContext.Provider
       value={{
         ventas,
         setVentas,
-        agregarVenta
+        agregarVenta,
+        loading,
       }}
     >
       {children}

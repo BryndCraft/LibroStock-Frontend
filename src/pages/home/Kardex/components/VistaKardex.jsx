@@ -1,16 +1,13 @@
-import {
-  AnimatedContainer,
-  AnimatedButton,
-  AnimatedIcon,
-} from "../../../../animations/animations";
+import React from "react";
+import { AnimatedContainer } from "../../../../animations/animations";
+import { AddCircle, RemoveCircle, Inventory } from "@mui/icons-material";
 import { useKardex } from "../../../../context/KardexContext";
 import { useProductos } from "../../../../context/ProductosContext";
+import Card from "../../../../components/utils/Card";
 
 export default function VistaKardex() {
-  const { kardex, setKardex } = useKardex();
-  const { productos} = useProductos();
-  console.log(kardex);
-  console.log(productos);
+  const { kardex } = useKardex();
+  const { productos } = useProductos();
 
   const encontrarProducto = (IdProducto) => {
     const producto = productos.find((p) => p.id === IdProducto);
@@ -26,8 +23,8 @@ export default function VistaKardex() {
         month: "2-digit",
         year: "numeric",
       });
-    } catch (error) {
-      return fechaBD;
+    } catch {
+      return "Fecha inválida";
     }
   };
 
@@ -42,188 +39,124 @@ export default function VistaKardex() {
     }
   };
 
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("es-MX", {
+  const formatCurrency = (amount) =>
+    new Intl.NumberFormat("es-MX", {
       style: "currency",
       currency: "MXN",
     }).format(amount || 0);
-  };
+
+  const tieneRegistros = kardex.length > 0;
 
   return (
-    <AnimatedContainer className="min-h-screen w-full ml-75 bg-gray-50">
-      {/* Header Mejorado */}
-      <div className="w-full bg-gradient-to-r from-green-600 to-emerald-700 px-8 py-12 shadow-lg">
-        <div className="flex justify-between items-center w-full">
-          <div className="space-y-3">
-            <div className="font-bold text-white text-4xl tracking-tight">
-              Kardex del Inventario
-            </div>
-            <div className="font-light text-emerald-100 text-xl">
-              Historial completo de movimientos de inventario
-            </div>
+    <AnimatedContainer className="flex-1 bg-gray-50 flex flex-col overflow-hidden ml-74">
+      {/* Header - Siempre visible */}
+      <div className="bg-gradient-to-r from-green-600 to-emerald-700 px-8 py-6 shadow-lg flex justify-between items-center">
+        <div className="grid gap-2">
+          <div className="font-bold text-white text-3xl">
+            Kardex del Inventario
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
-            <div className="text-white text-sm font-medium">
-              Total de registros
-            </div>
-            <div className="text-white text-2xl font-bold">{kardex.length}</div>
+          <div className="font-light text-emerald-100 text-lg">
+            Historial completo de movimientos de inventario
           </div>
+        </div>
+        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+          <div className="text-white text-sm font-medium">Total de registros</div>
+          <div className="text-white text-2xl font-bold">{kardex.length}</div>
         </div>
       </div>
 
-      {/* Contenedor Principal */}
-      <div className="px-8 -mt-8 relative">
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-6 mb-6">
-          {/* Barra de Estadísticas */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-              <div className="text-blue-600 text-sm font-semibold">
-                Entradas
-              </div>
-              <div className="text-2xl font-bold text-blue-800">
-                {
-                  kardex.filter(
-                    (item) => item.tipo?.toLowerCase() === "entrada"
-                  ).length
-                }
-              </div>
-            </div>
-            <div className="bg-red-50 rounded-lg p-4 border border-red-100">
-              <div className="text-red-600 text-sm font-semibold">Salidas</div>
-              <div className="text-2xl font-bold text-red-800">
-                {
-                  kardex.filter((item) => item.tipo?.toLowerCase() === "salida")
-                    .length
-                }
-              </div>
-            </div>
-            <div className="bg-purple-50 rounded-lg p-4 border border-purple-100">
-              <div className="text-purple-600 text-sm font-semibold">
-                Productos
-              </div>
-              <div className="text-2xl font-bold text-purple-800">
-                {productos.length}
-              </div>
-            </div>
+      {/* Contenido principal - Siempre ocupa el espacio restante */}
+      <div className="flex flex-col gap-5 p-6 flex-1 overflow-hidden">
+        {/* Cards - Siempre visibles */}
+        <div className="flex gap-5">
+          <div className="flex-1">
+            <Card
+              color="green"
+              cantidad={
+                kardex.filter((item) => item.tipo_movimiento?.toLowerCase() === "entrada").length
+              }
+              texto="Total de Entradas"
+              icon={<AddCircle />}
+            />
           </div>
+          <div className="flex-1">
+            <Card
+              color="red"
+              cantidad={
+                kardex.filter((item) => item.tipo_movimiento?.toLowerCase() === "salida").length
+              }
+              texto="Total de Salidas"
+              icon={<RemoveCircle />}
+            />
+          </div>
+        </div>
 
-          {/* Tabla Mejorada */}
-          <div className="overflow-hidden rounded-xl border border-gray-200 shadow-sm">
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gradient-to-r from-gray-50 to-blue-50/30 border-b border-gray-200">
-                  <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
-                    ID
-                  </th>
-                  <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
-                    Producto
-                  </th>
-                  <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
-                    Fecha
-                  </th>
-                  <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
-                    Tipo
-                  </th>
-                  <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
-                    Referencia
-                  </th>
-                  <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
-                    Cantidad
-                  </th>
-                  <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
-                    Costo Unitario
-                  </th>
-                  <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
-                    Costo Total
-                  </th>
-                   <th className="text-left p-6 font-bold text-gray-700 text-sm uppercase tracking-wider whitespace-nowrap">
-                    Costo Promedio
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
+        {/* Tabla o Estado Vacío - Ambos mantienen la misma altura */}
+        <div className="bg-white rounded-xl shadow-lg border border-gray-200 flex-1 flex flex-col overflow-hidden">
+          {tieneRegistros ? (
+            <>
+              {/* Encabezados de tabla */}
+              <div className="grid grid-cols-9 gap-4 border-b border-gray-200 p-4 font-bold text-gray-700 text-xs uppercase bg-gray-50">
+                {["ID","Producto","Fecha","Tipo","Referencia","Cantidad","Costo Unitario","Costo Total","Costo Promedio"].map((col) => (
+                  <div key={col} className="truncate">{col}</div>
+                ))}
+              </div>
+
+              {/* Filas con scroll vertical */}
+              <div className="overflow-y-auto flex-1">
                 {kardex.map((data) => (
-                  <tr
+                  <div
                     key={data.id}
-                    className="hover:bg-blue-50/30 transition-all duration-200 group cursor-pointer"
+                    className="grid grid-cols-9 gap-4 border-b border-gray-100 hover:bg-gray-50 transition-colors p-4"
                   >
-                    <td className="p-6 whitespace-nowrap">
-                      <div className="text-gray-900 font-mono text-sm font-medium">
-                        #{data.id}
-                      </div>
-                    </td>
-                    <td className="p-6 whitespace-nowrap">
-                      <div className="flex flex-col">
-                        <span className="text-gray-900 font-medium">
-                          {encontrarProducto(data.producto_id)}
-                        </span>
-                        <span className="text-gray-500 text-xs">
-                          ID: {data.producto_id}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="p-6 whitespace-nowrap">
-                      <div className="text-gray-700 font-medium">
-                        {formatearFecha(data.created_date)}
-                      </div>
-                    </td>
-                    <td className="p-6 whitespace-nowrap">
-                      <span
-                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium border ${getTipoColor(
-                          data.tipo_movimiento
-                        )}`}
-                      >
+                    <div className="font-mono text-sm">#{data.id}</div>
+                    <div className="grid gap-1">
+                      <span className="font-medium text-gray-900 truncate">{encontrarProducto(data.producto_id)}</span>
+                      <span className="text-xs text-gray-500">ID: {data.producto_id}</span>
+                    </div>
+                    <div>{formatearFecha(data.created_date)}</div>
+                    <div>
+                      <span className={`inline-grid place-items-center px-3 py-1 rounded-full text-xs font-medium border ${getTipoColor(data.tipo_movimiento)}`}>
                         {data.tipo_movimiento || "N/A"}
                       </span>
-                    </td>
-                    <td className="p-6 whitespace-nowrap">
-                      <div className="text-gray-700 max-w-xs truncate">
-                        {data.referencia || "Sin referencia"}
-                      </div>
-                    </td>
-                    <td className="p-6 whitespace-nowrap">
-                      <div
-                        className={`font-bold ${
-                          data.tipo_movimiento === "ENTRADA"
-                            ? "text-green-600"
-                            : "text-red-600"
-                        }`}
-                      >
-                        {data.cantidad}
-                      </div>
-                    </td>
-                    <td className="p-6 whitespace-nowrap">
-                      <div className="text-gray-900 font-semibold">
-                        {formatCurrency(data.costo_unitario)}
-                      </div>
-                    </td>
-                    <td className="p-6 whitespace-nowrap">
-        
-                      <div className="font-poppinsBold">
-                        {formatCurrency(data.costo_total)}
-                      </div>
-                    </td>
-
-                     <td className="p-6 whitespace-nowrap">
-                      <div className="font-poppinsBold ">
-                        {formatCurrency(data.costo_promedio)}
-                      </div>
-                    </td>
-                  </tr>
+                    </div>
+                    <div className="truncate">{data.referencia || "Sin referencia"}</div>
+                    <div className={`font-bold ${data.tipo_movimiento?.toUpperCase() === "ENTRADA" ? "text-green-600" : "text-red-600"}`}>
+                      {data.cantidad}
+                    </div>
+                    <div className="font-semibold">{formatCurrency(data.costo_unitario)}</div>
+                    <div className="font-semibold">{formatCurrency(data.costo_total)}</div>
+                    <div className="font-semibold">{formatCurrency(data.costo_promedio)}</div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Footer de la tabla */}
-          {kardex.length === 0 && (
-            <div className="text-center py-12">
-              <h3 className="mt-4 text-lg font-medium text-gray-900">
-                No hay registros
-              </h3>
-              <p className="mt-1 text-gray-500">
-                No se encontraron movimientos en el kardex.
-              </p>
+              </div>
+            </>
+          ) : (
+            /* Estado vacío con diseño más atractivo */
+            <div className="flex-1 grid place-items-center p-8">
+              <div className="max-w-md text-center grid gap-4">
+                <div className="grid place-items-center">
+                  <div className="bg-emerald-50 w-20 h-20 rounded-full grid place-items-center mb-4">
+                    <Inventory className="text-emerald-500 text-3xl" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                    No hay movimientos registrados
+                  </h3>
+                  <p className="text-gray-600 mb-4">
+                    El kardex está vacío. Cuando realices movimientos de inventario, aparecerán aquí.
+                  </p>
+                  <div className="grid gap-2 text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                    <div className="flex items-center justify-center gap-2">
+                      <AddCircle className="text-green-500 text-base" />
+                      <span>Las entradas aumentan el inventario</span>
+                    </div>
+                    <div className="flex items-center justify-center gap-2">
+                      <RemoveCircle className="text-red-500 text-base" />
+                      <span>Las salidas disminuyen el inventario</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

@@ -7,7 +7,7 @@ const ComprasContext = createContext();
 export const ComprasProvider = ({ children }) => {
   const [compras, setCompras] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { cargarProductos, setProductos } = useProductos(); // Añadido setProductos
+  const { cargarProductos } = useProductos(); // usamos cargarProductos del ProductosContext
 
   // Función para cargar todas las compras
   const cargarCompras = useCallback(async (producto_id = "") => {
@@ -22,35 +22,18 @@ export const ComprasProvider = ({ children }) => {
     }
   }, []);
 
-  // Función para crear una compra
   const agregarCompra = useCallback(async (compra) => {
     setLoading(true);
     try {
       const response = await createCompra(compra);
-
-      if (response && response.id) {
-        await cargarProductos();
-        
-        setProductos([]); 
-        setTimeout(async () => {
-          await cargarProductos();
-        }, 100);
-      }
-
-      // Actualizar lista de compras
-      await cargarCompras();
-      
-      return {
-        ...response,
-        recargado: true // Flag para indicar que se recargaron productos
-      };
+      await cargarCompras(); 
     } catch (error) {
       console.error("Error creando compra:", error);
       throw error;
     } finally {
       setLoading(false);
     }
-  }, [cargarProductos, cargarCompras, setProductos]);
+  }, [cargarProductos, cargarCompras]);
 
   useEffect(() => {
     cargarCompras();

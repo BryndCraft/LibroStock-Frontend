@@ -271,7 +271,7 @@ export default function Perfil() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100  flex">
       <Sidebar />
-      <div className="flex-1 max-w-6xl mx-auto pt-3 pl-3">
+      <div className="flex-1 max-w-6xl mx-auto pt-3  ml-84 pl-3">
         {/* Header */}
         <div className="mb-2">
           <h1 className="text-3xl font-bold text-gray-900 ">Perfil de Usuario</h1>

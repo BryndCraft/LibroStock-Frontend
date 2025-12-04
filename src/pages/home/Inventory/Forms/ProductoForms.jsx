@@ -29,7 +29,7 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
       setFormData({
         nombre: productoEditando.nombre || "",
         descripcion: productoEditando.descripcion || "",
-        precio: productoEditando.precio_venta || "",
+        precio: productoEditando.precio || "",
         stock: productoEditando.stock || "0",
         stock_minimo: productoEditando.stock_minimo || "0",
         codigo_barras: productoEditando.codigo_barras || "",
@@ -48,7 +48,7 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
     // Preparar datos para enviar
     const datosEnviar = {
       ...formData,
-      precio: parseFloat(formData.precio_venta),
+      precio: parseFloat(formData.precio),
       stock: parseInt(formData.stock) || 0,
       stock_minimo: parseInt(formData.stock_minimo) || 0,
       categoria_id: formData.categoria_id || null,
@@ -115,8 +115,8 @@ export function ProductoForm({ setMostrarProductoForm, productoEditando }) {
                 <label>Precio *</label>
                 <input
                   type="number"
-                  name="precio_venta"
-                  value={formData.precio_venta}
+                  name="precio"
+                  value={formData.precio}
                   onChange={handleChange}
                   min="0"
                   step="0.01"

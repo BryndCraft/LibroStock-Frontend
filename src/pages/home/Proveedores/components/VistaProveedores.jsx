@@ -11,11 +11,12 @@ import { useProveedor } from "../../../../context/ProveedorContext";
 
 export default function VistaProveedores() {
   const [formProveedorModal, setFormProveedorModal] = useState();
+  const{proveedores} = useProveedor();
   const [editandoProveedor, setEditandoProveedor] = useState();
   const [proveedoresInactivos, setProveedoresInactivos] = useState(false);
   const [filtroBusqueda, setFiltroBusqueda] = useState("");
 
-  const { proveedores } = useProveedor();
+
 
   const filtrarProveedores = () => {
     return proveedores.filter((p) => {

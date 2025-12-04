@@ -14,11 +14,19 @@ import SellIcon from "@mui/icons-material/Sell";
 import SchoolIcon from "@mui/icons-material/School";
 import { Route } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useVentas } from "../../../../context/VentasContext";
+import { useEffect } from "react";
+
 
 export default function VistaDashBoard() {
   const { sinStock, stockBajo, productosActivos, desactivados } =
     useProductos();
 
+  const {ventas, cargarVentas} = useVentas();
+  useEffect(()=>{
+    cargarVentas()
+  }, [])
+  
   const navegacion = useNavigate();
   return (
     <AnimatedContainer className="min-h-screen w-full ml-75">
@@ -53,8 +61,8 @@ export default function VistaDashBoard() {
 
             <Card
               color="blue"
-              cantidad={42}
-              texto="Ventas del día"
+              cantidad={ventas.length} 
+              texto="Ventas"
               icon={<SellIcon className="text-white" />}
               trend="up"
               trendValue="5%"
@@ -87,21 +95,6 @@ export default function VistaDashBoard() {
               onClick={() => handleAbrirModal("sinStock")}
             />
           </div>
-
-          <div className="border border-amber-300 w-full h-50 p-8 rounded-3xl bg-amber-200/40">
-            <div className="flex flex-col">
-              <span className="font-poppinsBold text-2xl text-amber-800">
-                Alertas de Inventario
-              </span>
-              <span className="font-light text-xl text-amber-700">
-                Productos que requieren atención
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="border border-green-500/40 shadow-lg w-[50%] p-5 rounded-2xl h-70">
-              <span className="font-poppinsBold text-2xl text-green-500">Actividad Reciente</span>
         </div>
       </div>
 

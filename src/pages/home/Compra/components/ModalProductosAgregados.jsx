@@ -66,7 +66,7 @@ const ProductRow = memo(({ prod, index, onUpdate, onRemove }) => {
         />
       </td>
       <td className="p-3 text-gray-700 font-medium">
-        ${costoUnitarioVisual.toFixed(2)}
+        C${costoUnitarioVisual.toFixed(2)}
       </td>
       <td className="p-3 text-center">
         <button

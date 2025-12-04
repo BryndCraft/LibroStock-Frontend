@@ -1,6 +1,6 @@
 import { useLocation } from "react-router-dom";
 import { Link } from "react-router-dom";
-import Logo from "../../assets/images/LibroStock-Logo.png";
+import Logo from "../../assets/images/Booknet.jpg";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import InventoryIcon from "@mui/icons-material/Inventory";
@@ -10,7 +10,7 @@ import { useUser } from "../../context/UserContext";
 import { useState } from "react";
 import { getMediaUrl } from "../../apis/auth.api";
 import { useEffect } from "react";
-import { Person } from "@mui/icons-material";
+import { Person,ShoppingCart, Storage} from "@mui/icons-material";
 import SupervisedUserCircleIcon from '@mui/icons-material/SupervisedUserCircle';
 import { LibraryAdd } from "@mui/icons-material";
 
@@ -31,13 +31,13 @@ export default function Sidebar() {
   }, [user]);
 
   const links = [
-    { name: "Dashboard", path: "/", icon: <DashboardIcon className="text-xl" /> },
     { name: "Facturación", path: "/facturacion", icon: <ReceiptLongIcon className="text-xl" /> },
     { name: "Inventario", path: "/inventario", icon: <InventoryIcon className="text-xl" /> },
     { name: "Proveedores", path: "/proveedores", icon: <SupervisedUserCircleIcon className="text-xl" /> },
-    { name: "Compras", path: "/compras", icon: <LibraryAdd className="text-xl" /> },
-    { name: "Prueba", path: "/prueba", icon: <LibraryAdd className="text-xl" />},
-    { name: "Kardex", path: "/kardex", icon: <LibraryAdd />}
+    { name: "Compras", path: "/compras", icon: <ShoppingCart className="text-xl" /> },
+    { name: "Kardex", path: "/kardex", icon: <Storage className="text-xl" />},
+    { name: "DashBoard", path: "/prueba", icon: <DashboardIcon className="text-xl" />}
+
   ];
 
   return (
@@ -48,7 +48,7 @@ export default function Sidebar() {
         <div className="bg-white rounded-2xl w-28 h-28 p-4 select-none shadow-lg mb-5 transition-transform duration-300 hover:scale-105 md:w-24 md:h-24">
           <img src={Logo} className="w-full h-full object-contain" alt="LibroStock Logo" />
         </div>
-        <h2 className="text-white text-2xl mb-2 font-poppinsBold md:text-lg">LibroStock</h2>
+        <h2 className="text-white text-2xl mb-2 font-poppinsBold md:text-lg">Booknet</h2>
         <p className="text-slate-300 text-sm font-poppins">Tu biblioteca al día</p>
       </div>
 

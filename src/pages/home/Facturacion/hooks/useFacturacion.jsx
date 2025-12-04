@@ -5,7 +5,7 @@ export function useFacturacion() {
   const { agregarVenta } = useVentas();
 
   const [facturacionData, setFacturacionData] = useState({
-    estado: "Pagada",
+    estado: "PAGADA",
     montoRecibido: 0,
     montoDevuelto: 0,
     total: 0,

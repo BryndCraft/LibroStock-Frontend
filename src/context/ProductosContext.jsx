@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import {
   createProducto,
   searchProductos,
@@ -30,35 +36,51 @@ export const ProductosProvider = ({ children }) => {
     }
   }, []); // no depende de nada externo
 
-  const agregarProducto = useCallback(async (datos) => {
-    const response = await createProducto(datos);
-    await cargarProductos(); // usamos la versión memorizada
-    return response;
-  }, [cargarProductos]);
+  const agregarProducto = useCallback(
+    async (datos) => {
+      const response = await createProducto(datos);
+      await cargarProductos(); // usamos la versión memorizada
+      return response;
+    },
+    [cargarProductos]
+  );
 
-  const editarProducto = useCallback(async (id, datos) => {
-    await updateProducto(id, datos);
-    await cargarProductos();
-  }, [cargarProductos]);
+  const editarProducto = useCallback(
+    async (id, datos) => {
+      await updateProducto(id, datos);
+      await cargarProductos();
+    },
+    [cargarProductos]
+  );
 
-  const eliminarProducto = useCallback(async (id) => {
-    await deleteProducto(id);
-    await cargarProductos();
-  }, [cargarProductos]);
+  const eliminarProducto = useCallback(
+    async (id) => {
+      await deleteProducto(id);
+      await cargarProductos();
+    },
+    [cargarProductos]
+  );
 
-  const activarProducto = useCallback(async (id) => {
-    const response = await activateProductos(id);
-    await cargarProductos();
-    return response;
-  }, [cargarProductos]);
+  const activarProducto = useCallback(
+    async (id) => {
+      const response = await activateProductos(id);
+      await cargarProductos();
+      return response;
+    },
+    [cargarProductos]
+  );
 
   useEffect(() => {
     cargarProductos();
-  }, [cargarProductos]); 
+  }, [cargarProductos]);
 
- 
   useEffect(() => {
-    setStockBajo(productos.filter((p) => (p.stock || 0) <= (p.stock_minimo || 0)).length);
+    setStockBajo(
+      productos.filter(
+        (p) => (p.stock || 0) > 0 && (p.stock || 0) <= (p.stock_minimo || 0)
+      ).length
+    );
+
     setSinStock(productos.filter((p) => (p.stock || 0) <= 0).length);
     setDesactivados(productos.filter((p) => !p.estado).length);
     setProductosActivos(productos.filter((p) => p.estado).length);

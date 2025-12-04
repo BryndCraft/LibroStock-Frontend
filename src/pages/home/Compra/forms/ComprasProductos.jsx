@@ -54,7 +54,6 @@ export default function ComprasProductos({
     handleGuardarCompra(comprasDatos, setAbrirFormulario);
   };
 
-  // Función auxiliar para agregar producto
   const handleAgregarProducto = useCallback((prod) => {
       const existe = formData.productos?.some((p) => p.producto_id === prod.id); // Ojo: verifica si usas 'id' o 'producto_id'
       
@@ -76,10 +75,10 @@ export default function ComprasProductos({
           {
             producto_id: prod.id,
             nombre: prod.nombre,
-            precio: prod.precio, // Precio de venta (referencia)
+            precio: prod.precio, 
             stock: prod.stock,
-            cantidad: 1, // Inicializar en 1
-            costo_total: 0 // Inicializar
+            cantidad: 1,
+            costo_total: 0
           },
         ],
       }));
@@ -107,7 +106,6 @@ export default function ComprasProductos({
         exit={{ opacity: 0 }}
       >
         <div className="bg-white rounded-xl shadow-lg w-full h-[90vh] max-w-[80vw] overflow-y-auto p-4 flex flex-col"> 
-          {/* Cambié motion.div por div normal en el contenedor interno para reducir carga de animación */}
           
           <form className="p-6 space-y-4 h-full flex flex-col" onSubmit={handleSubmit}>
             {/* Header */}

@@ -53,13 +53,7 @@ export default function ComprasCabecera({
         text: "Debes ingresar el número de factura",
       });
       return;
-    } else if (!metodo_pago) {
-      Swal.fire({
-        icon: "warning",
-        title: "Oops...",
-        text: "Debes ingresar un método de pago",
-      });
-      return;
+    
     } else if (!formData.proveedor_id) { // El proveedor sí usa formData directo porque es un Select
       Swal.fire({
         icon: "warning",
@@ -161,19 +155,7 @@ export default function ComprasCabecera({
                   placeholder="0000"
                 />
               </div>
-              <div className="flex-1 flex flex-col">
-                <label className="text-gray-700 font-medium mb-1">Método de pago *</label>
-                <input
-                  type="text"
-                  name="metodo_pago"
-                  // Usamos localState aquí
-                  value={localState.metodo_pago}
-                  onChange={handleLocalChange}
-                  onBlur={handleBlur} // Actualiza el global al salir
-                  className="px-3 py-2 border rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                  placeholder="Tarjeta, Efectivo"
-                />
-              </div>
+              
             </motion.div>
 
             <motion.div className="flex flex-col" variants={formGroupVariants(0.3)} initial="initial" animate="animate">

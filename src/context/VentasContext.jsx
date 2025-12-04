@@ -1,5 +1,5 @@
-import { createContext, useContext, useState } from "react";
-import { createVenta } from "../apis/ventas.api";
+import { createContext, useContext, useEffect, useState } from "react";
+import { createVenta, listVentas } from "../apis/ventas.api";
 import { useProductos } from "./ProductosContext";
 
 const VentasContext = createContext();
@@ -8,22 +8,17 @@ const VentasContext = createContext();
 export const VentasProvider = ({ children }) => {
   const [ventas, setVentas] = useState([]);
   const [loading, setLoading] = useState(false);
-  const { setProductos,cargarProductos } = useProductos();
+  const { cargarProductos } = useProductos();
 
-  // Función para actualizar stock solo de los productos vendidos
-  
 
-  // Función para crear una venta
   const agregarVenta = async (venta) => {
     setLoading(true);
     try {
       const response = await createVenta(venta);
 
-      if (response && response.id) { 
-        cargarProductos();
-      }
+      await cargarProductos();
 
-      return response;
+      return response.data;
     } catch (error) {
       console.error("Error creando venta:", error);
       throw error;
@@ -32,12 +27,32 @@ export const VentasProvider = ({ children }) => {
     }
   };
 
+ 
+  const cargarVentas = async (factura_id) => {
+    setLoading(true);
+    try {
+      const response = await listVentas(factura_id);
+      setVentas(response.data.Ventas || []);
+    } catch (error) {
+      console.error("Error cargando ventas:", error);
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+useEffect(() =>{
+  cargarVentas()
+}, [])
+
+  
   return (
     <VentasContext.Provider
       value={{
         ventas,
         setVentas,
         agregarVenta,
+        cargarVentas,
         loading,
       }}
     >

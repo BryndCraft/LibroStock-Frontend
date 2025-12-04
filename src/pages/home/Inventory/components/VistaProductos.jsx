@@ -10,6 +10,7 @@ import {
   Clear,
   Dashboard,
   TableChart,
+  Download,
 } from "@mui/icons-material";
 import CustomSelect from "../../../../components/utils/CustomSelect";
 import { useInventario } from "../hooks/useInventario";
@@ -19,6 +20,10 @@ import { useState } from "react";
 import { VistaTabla } from "./VistaTabla";
 import { Switch, FormControlLabel } from "@mui/material";
 import { Add } from "@mui/icons-material";
+import { useProductos } from "../../../../context/ProductosContext";
+import { useEffect } from "react";
+import * as XLSX from "xlsx";
+import { useCategorias } from "../../../../context/CategoriasContext";
 
 export default function VistaProductos({ setVista }) {
   const [productosInactivos, setProductosInactivos] = useState(false);
@@ -33,6 +38,12 @@ export default function VistaProductos({ setVista }) {
     setFiltroBusqueda,
   } = useInventario();
 
+  const {cargarProductos} = useProductos();
+  
+  useEffect(() => {
+    cargarProductos();
+  }, [cargarProductos]);
+  
   const [modoVisualizacion, setModoVisualizacion] = useState("cards");
   const [mostrarProductoForm, setMostrarProductoForm] = useState(false);
   const [productoEditando, setProductoEditando] = useState(null);
@@ -51,9 +62,44 @@ export default function VistaProductos({ setVista }) {
     setFiltroBusqueda(e.target.value);
   };
 
+
+
+  
   const productosFiltradosFinal = productosFiltrados.filter((p) =>
     productosInactivos ? !p.estado : p.estado
   );
+
+  // Función para exportar productos a Excel
+  const exportarProductos = () => {
+    // Usamos productosFiltradosFinal que ya están filtrados según los filtros aplicados
+    const datosExportar = productosFiltradosFinal.map(producto => ({
+      'Nombre': producto.nombre || '',
+      'Categoría': categorias.find(categoria => categoria.id === producto.categoria_id)?.nombre || 'Sin categoría',
+      'Precio': producto.precio || 0,
+      'Stock': producto.stock || 0,
+      'Estado': producto.estado ? 'Activo' : 'Inactivo',
+      'Descripción': producto.descripcion || '',
+      'Fecha Creación': producto.create_date? new Date(producto.create_date).toLocaleDateString() : '',
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(datosExportar);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Productos');
+    
+    // Auto ajustar el ancho de las columnas
+    const wscols = [
+      { wch: 30 }, // Nombre
+      { wch: 20 }, // Categoría
+      { wch: 15 }, // Precio
+      { wch: 10 }, // Stock
+      { wch: 15 }, // Estado
+      { wch: 40 }, // Descripción
+      { wch: 20 }, // Fecha Creación
+    ];
+    worksheet['!cols'] = wscols;
+
+    XLSX.writeFile(workbook, `productos_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
 
   return (
     <AnimatedContainer className="h-screen w-full md:ml-75 flex flex-col">
@@ -98,6 +144,15 @@ export default function VistaProductos({ setVista }) {
               </span>
             </button>
           </div>
+           <AnimatedButton
+            onClick={exportarProductos}
+            className="w-full sm:w-auto whitespace-nowrap px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-700 text-white rounded-2xl hover:from-green-700 hover:to-emerald-800 transition-all duration-200 shadow-lg hover:shadow-xl flex items-center justify-center gap-2 font-medium cursor-pointer"
+          >
+            <AnimatedIcon>
+              <Download className="text-lg" />
+            </AnimatedIcon>
+            Exportar Excel
+          </AnimatedButton>
         </div>
       </div>
 
@@ -161,6 +216,9 @@ export default function VistaProductos({ setVista }) {
             </AnimatedIcon>
             Quitar Filtros
           </AnimatedButton>
+
+          {/* BOTÓN EXPORTAR */}
+         
 
           {/* VISTAS */}
           <div className="flex w-full sm:w-auto gap-3">

@@ -42,7 +42,7 @@ export default function Login() {
       if (response.status === 200) {
         loginUser(response.data.user, response.data.token);
         await Swal.fire('Bienvenido', 'Inicio de Sesion exitoso', 'success');
-        navi('/dashboard');
+        navi('/prueba');
       }
 
     } catch (error) {

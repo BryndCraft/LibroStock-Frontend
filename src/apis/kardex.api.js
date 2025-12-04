@@ -2,7 +2,7 @@ import axios from 'axios';
 const baseURL = import.meta.env.VITE_API_BASE_URL;
 
 const kardexApi = axios.create({
-  baseURL: `${baseURL}/Kardex/api/v1` // ✅ Aquí apuntamos a Kardex
+  baseURL: `${baseURL}/Kardex/api/v1` 
 });
 
 // Interceptor para enviar token en cada request

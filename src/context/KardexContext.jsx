@@ -27,7 +27,7 @@ export const KardexProvider = ({ children }) => {
    return (
     <KardexContext.Provider
       value={{
-        kardex, setKardex
+        kardex, setKardex, fetchKardex
       }}
     >
       {children}
@@ -37,3 +37,7 @@ export const KardexProvider = ({ children }) => {
 
 // Hook para usar el context
 export const useKardex = () => useContext(KardexContext);
+
+
+
+

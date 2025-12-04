@@ -17,13 +17,16 @@
     "@mui/styled-engine": "^7.3.3",
     "axios": "^1.12.2",
     "framer-motion": "^12.23.24",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.4",
     "localstorage": "^1.0.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.4",
     "sweet-alert": "^2.0.5",
     "sweetalert": "^2.1.2",
-    "sweetalert2": "^11.26.3"
+    "sweetalert2": "^11.26.3",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.36.0",

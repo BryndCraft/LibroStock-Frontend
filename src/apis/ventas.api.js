@@ -5,7 +5,7 @@ const ventasApi = axios.create({
   baseURL: `${baseURL}/Ventas/api/v1`
 });
 
-// Interceptor para enviar el token
+// Interceptor para enviar el token automáticamente
 ventasApi.interceptors.request.use(
   (config) => {
     const access = sessionStorage.getItem('token');
@@ -17,7 +17,11 @@ ventasApi.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+export const listVentas = (factura_id = "") => {
+  return ventasApi.post("/list/",  factura_id );
+};
 
-export const createVenta = (compra) => {
-  return ventasApi.post("/create/", compra);
+
+export const createVenta = (factura) => {
+  return ventasApi.post("/create/", factura);
 };

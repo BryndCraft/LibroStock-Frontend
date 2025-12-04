@@ -28,7 +28,6 @@ export const ProveedorProvider = ({ children }) => {
       setTotal(response.data?.Proveedores?.total || 0);
     } catch (error) {
       console.error("Error cargando proveedores:", error);
-      Swal.fire("Error", "Error al cargar los proveedores", "error");
     } finally {
       setLoading(false);
     }
@@ -54,6 +53,7 @@ export const ProveedorProvider = ({ children }) => {
   const agregarProveedor = async (data) => {
     try {
       const res = await createProveedor(data);
+
       await fetchProveedores();
       Swal.fire("Éxito", "Proveedor creado correctamente", "success");
       return res.data;

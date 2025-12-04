@@ -12,7 +12,7 @@ import {
 import Swal from "sweetalert2";
 import { useProveedor } from "../../../../context/ProveedorContext";
 export function ProveedorForm({ proveedorEditando, setModalFormProveedor }) {
-  const { agregarProveedor, editarProveedor } = useProveedor();
+  const { agregarProveedor, editarProveedor, cargarProveedores, proveedores } = useProveedor();
 
   const [formData, setFormData] = useState({
     empresa: "",
@@ -24,6 +24,7 @@ export function ProveedorForm({ proveedorEditando, setModalFormProveedor }) {
     estado:
       proveedorEditando?.estado !== undefined ? proveedorEditando.estado : true,
   });
+
 
   useEffect(() => {
     setFormData((prev) => {

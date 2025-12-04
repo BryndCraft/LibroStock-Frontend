@@ -1,9 +1,13 @@
 import { Edit, Delete, Business, Person, Phone, Email, LocationOn, AssignmentInd, CheckBox, Check } from '@mui/icons-material';
 import { useProveedor } from '../../../../context/ProveedorContext';
+import { useEffect } from 'react';
 
 export default function VistaTablaProveedores({ abrirEditarProveedor, proveedoresInactivos, proveedoresFiltrados }) {
-  const { proveedores, eliminarProveedor, activarProveedor } = useProveedor();
+  const { proveedores, eliminarProveedor, activarProveedor, fetchProveedores } = useProveedor();
 
+  useEffect(()=>{
+    fetchProveedores()
+  }, [])
   // Filtrar proveedores según estado
   const proveedoresFiltradosPorEstado = proveedoresFiltrados
     ? proveedoresFiltrados.filter((proveedor) => 
@@ -58,9 +62,9 @@ export default function VistaTablaProveedores({ abrirEditarProveedor, proveedore
                           <div className="font-semibold text-slate-800 text-lg truncate">
                             {proveedor.empresa}
                           </div>
-                          {proveedor.ruc && (
+                          {proveedor.id && (
                             <div className="text-slate-500 text-sm mt-1 font-mono truncate">
-                              {proveedor.ruc}
+                              id #{proveedor.id}
                             </div>
                           )}
                           {proveedor.direccion && (
@@ -73,11 +77,11 @@ export default function VistaTablaProveedores({ abrirEditarProveedor, proveedore
                       </div>
                     </td>
                     <td className="p-6 whitespace-nowrap">
-                      {proveedor.nombre_contacto ? (
+                      {proveedor.contacto ? (
                         <div className="flex items-center gap-2">
                           <Person className="w-4 h-4 text-slate-400 flex-shrink-0" />
                           <span className="text-slate-700 font-medium truncate">
-                            {proveedor.nombre_contacto}
+                            {proveedor.contacto}
                           </span>
                         </div>
                       ) : (

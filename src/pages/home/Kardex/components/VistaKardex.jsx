@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { AnimatedContainer } from "../../../../animations/animations";
 import { AddCircle, RemoveCircle, Inventory } from "@mui/icons-material";
 import { useKardex } from "../../../../context/KardexContext";
@@ -6,9 +6,13 @@ import { useProductos } from "../../../../context/ProductosContext";
 import Card from "../../../../components/utils/Card";
 
 export default function VistaKardex() {
-  const { kardex } = useKardex();
+  const { kardex,fetchKardex} = useKardex();
   const { productos } = useProductos();
 
+  useEffect(() =>{
+    fetchKardex()
+  }, [])
+  
   const encontrarProducto = (IdProducto) => {
     const producto = productos.find((p) => p.id === IdProducto);
     return producto ? producto.nombre : "Producto no encontrado";
@@ -132,7 +136,6 @@ export default function VistaKardex() {
               </div>
             </>
           ) : (
-            /* Estado vacío con diseño más atractivo */
             <div className="flex-1 grid place-items-center p-8">
               <div className="max-w-md text-center grid gap-4">
                 <div className="grid place-items-center">
